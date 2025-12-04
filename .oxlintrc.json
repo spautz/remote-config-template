@@ -1,0 +1,17 @@
+{
+  "$schema": "https://oxc-project.github.io/oxc/schemas/oxlint.json",
+  "extends": ["oxlint/strict", "oxlint/react", "oxlint/typescript"],
+  "ignorePatterns": [
+    "build/**",
+    "coverage/**",
+    "dist/**",
+    "node_modules/**",
+    "storybook-static/**",
+    ".docusaurus/**",
+    // Each external-test has its own linting config, following the conventions of its framework
+    "external-tests/**"
+  ],
+  "rules": {
+    "no-console": "warn"
+  }
+}
