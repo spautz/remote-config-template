@@ -1,15 +1,15 @@
 {
-  "name": "@spautz/basic-library-template",
-  "version": "0.3.1",
-  "description": "My opinionated template for a basic, general-use JS library",
+  "name": "@spautz/myconfig-sdk",
+  "version": "0.0.1",
+  "description": "SDK package for fetching and accessing 'myconfig', in my opinionated remote-config-template",
   "keywords": [],
   "license": "MIT",
-  "homepage": "https://github.com/spautz/package-template/blob/main/packages/basic-library-template#readme",
-  "bugs": "https://github.com/spautz/package-template/issues",
+  "homepage": "https://github.com/spautz/remote-config-template/blob/main/packages/myconfig-sdk#readme",
+  "bugs": "https://github.com/spautz/remote-config-template/issues",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/spautz/package-template.git",
-    "directory": "packages/basic-library-template"
+    "url": "git+https://github.com/spautz/remote-config-template.git",
+    "directory": "packages/myconfig-sdk"
   },
   "author": {
     "name": "Steven Pautz",
@@ -79,6 +79,8 @@
     "@size-limit/esbuild": "catalog:",
     "@size-limit/esbuild-why": "catalog:",
     "@size-limit/file": "catalog:",
+    "@spautz/myconfig-contracts": "workspace:*",
+    "@spautz/myconfig-values": "workspace:*",
     "publint": "catalog:",
     "size-limit": "catalog:",
     "source-map-explorer": "catalog:",

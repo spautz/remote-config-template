@@ -1,13 +1,13 @@
 {
-  "name": "@spautz/package-template--docs-website",
+  "name": "@spautz/remote-config-template--docs-website",
   "private": true,
-  "description": "Documentation website for package-template packages",
+  "description": "Documentation website for the remote-config-template repo",
   "license": "MIT",
-  "homepage": "https://github.com/spautz/package-template/blob/main/docs-website#readme",
-  "bugs": "https://github.com/spautz/package-template/issues",
+  "homepage": "https://github.com/spautz/remote-config-template/blob/main/docs-website#readme",
+  "bugs": "https://github.com/spautz/remote-config-template/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/spautz/package-template.git",
+    "url": "https://github.com/spautz/remote-config-template.git",
     "directory": "docs-website"
   },
   "author": {
@@ -37,7 +37,6 @@
     "@docusaurus/preset-classic": "3.9.2",
     "@docusaurus/theme-classic": "3.9.2",
     "@mdx-js/react": "3.1.1",
-    "@spautz/react-library-template": "workspace:^",
     "clsx": "2.1.1",
     "prism-react-renderer": "2.4.1",
     "react": "catalog:",

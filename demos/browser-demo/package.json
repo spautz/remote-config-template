@@ -1,14 +1,14 @@
 {
-  "name": "@spautz/package-template--hello-world-ui",
+  "name": "@spautz/remote-config-template--browser-demo",
   "private": true,
-  "description": "Basic UI demo app for package-template packages",
+  "description": "Basic UI demo app for the remote-config SDK",
   "license": "MIT",
-  "homepage": "https://github.com/spautz/package-template/blob/main/demos/hello-world-ui#readme",
-  "bugs": "https://github.com/spautz/package-template/issues",
+  "homepage": "https://github.com/spautz/remote-config-template/blob/main/demos/browser-demo#readme",
+  "bugs": "https://github.com/spautz/remote-config-template/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/spautz/package-template.git",
-    "directory": "demos/hello-world-ui"
+    "url": "https://github.com/spautz/remote-config-template.git",
+    "directory": "demos/browser-demo"
   },
   "author": {
     "name": "Steven Pautz",
@@ -39,8 +39,7 @@
     "size-check": "source-map-explorer dist/**/*.js"
   },
   "dependencies": {
-    "@spautz/basic-library-template": "workspace:^",
-    "@spautz/react-library-template": "workspace:^"
+    "@spautz/myconfig-sdk": "workspace:^"
   },
   "devDependencies": {
     "@types/react": "catalog:",

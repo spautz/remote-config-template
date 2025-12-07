@@ -1,14 +1,14 @@
 {
-  "name": "@spautz/package-template--hello-world-cli",
+  "name": "@spautz/remote-config-template--server-demo",
   "private": true,
-  "description": "Basic CLI demo app for package-template packages",
+  "description": "Server-side demo app for the remote-config SDK",
   "license": "MIT",
-  "homepage": "https://github.com/spautz/package-template/blob/main/demos/hello-world-cli#readme",
-  "bugs": "https://github.com/spautz/package-template/issues",
+  "homepage": "https://github.com/spautz/remote-config-template/blob/main/demos/server-demo#readme",
+  "bugs": "https://github.com/spautz/remote-config-template/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/spautz/package-template.git",
-    "directory": "demos/hello-world-cli"
+    "url": "https://github.com/spautz/remote-config-template.git",
+    "directory": "demos/server-demo"
   },
   "author": {
     "name": "Steven Pautz",
@@ -39,7 +39,7 @@
     "size-check": "source-map-explorer dist/**/*.js"
   },
   "dependencies": {
-    "@spautz/basic-library-template": "workspace:^"
+    "@spautz/myconfig-sdk": "workspace:^"
   },
   "devDependencies": {
     "@types/react": "catalog:",

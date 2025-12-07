@@ -1,15 +1,15 @@
 {
-  "name": "@spautz/basic-library-template",
-  "version": "0.3.1",
-  "description": "My opinionated template for a basic, general-use JS library",
+  "name": "@spautz/myconfig-contracts",
+  "version": "0.0.1",
+  "description": "Typings and API contracts for 'myconfig', in my opinionated remote-config-template",
   "keywords": [],
   "license": "MIT",
-  "homepage": "https://github.com/spautz/package-template/blob/main/packages/basic-library-template#readme",
-  "bugs": "https://github.com/spautz/package-template/issues",
+  "homepage": "https://github.com/spautz/remote-config-template/blob/main/packages/myconfig-contracts#readme",
+  "bugs": "https://github.com/spautz/remote-config-template/issues",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/spautz/package-template.git",
-    "directory": "packages/basic-library-template"
+    "url": "git+https://github.com/spautz/remote-config-template.git",
+    "directory": "packages/myconfig-contracts"
   },
   "author": {
     "name": "Steven Pautz",
