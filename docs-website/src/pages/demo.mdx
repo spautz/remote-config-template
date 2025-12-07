@@ -1,0 +1,50 @@
+---
+title: Markdown page example
+---
+
+import * as React from 'react';
+import * as everythingFromReactLibraryTemplate from '@spautz/react-library-template';
+
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import Layout from '@theme/Layout';
+import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live';
+
+export const demoScope = {
+  React,
+  ...React,
+  ...everythingFromReactLibraryTemplate,
+};
+
+export const demoCode = `
+function Demo() {
+  return (
+    <TodoComponent>Hello</TodoComponent>
+  );
+}
+`;
+
+export const LiveDemoArea = () => {
+  // React in Production mode gives us a default export, which causes a syntax error with 'react-live'
+  // when it tries to bind a local variable for its scope.
+  delete demoScope.default;
+  return (
+    <section>
+      <LiveProvider code={demoCode} scope={demoScope}>
+        <LiveEditor />
+        <LiveError />
+        <div className="padding-vert--md">
+          <LivePreview />
+        </div>
+      </LiveProvider>
+    </section>
+  );
+};
+
+<!-- ====================================================================== -->
+
+# Demo
+
+This is a live demo of the `<TodoComponent>` from `@spautz/react-library-template`.
+
+<h1>Hello</h1>
+<LiveDemoArea />

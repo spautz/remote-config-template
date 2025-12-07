@@ -1,0 +1,67 @@
+{
+  "name": "@spautz/package-template--docs-website",
+  "private": true,
+  "description": "Documentation website for package-template packages",
+  "license": "MIT",
+  "homepage": "https://github.com/spautz/package-template/blob/main/docs-website#readme",
+  "bugs": "https://github.com/spautz/package-template/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/spautz/package-template.git",
+    "directory": "docs-website"
+  },
+  "author": {
+    "name": "Steven Pautz",
+    "url": "https://stevenpautz.com"
+  },
+  "source": "./src/pages/index.tsx",
+  "scripts": {
+    "____ STANDARD PACKAGE TASKS ________________________________________": "",
+    "all": "turbo run pipeline-all",
+    "all:ci": "turbo run pipeline-ci --ui=stream",
+    "build": "docusaurus build",
+    "clean": "docusaurus clear",
+    "dev": "docusaurus start",
+    "lint": "oxlint --fix",
+    "lint:verify": "oxlint",
+    "start": "turbo run build && docusaurus serve",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit",
+    "____ DOCS TASKS ____________________________________________________": "",
+    "deploy": "docusaurus deploy",
+    "swizzle": "docusaurus swizzle",
+    "write-translations": "docusaurus write-translations",
+    "write-heading-ids": "docusaurus write-heading-ids"
+  },
+  "dependencies": {
+    "@docusaurus/core": "3.9.2",
+    "@docusaurus/preset-classic": "3.9.2",
+    "@docusaurus/theme-classic": "3.9.2",
+    "@mdx-js/react": "3.1.1",
+    "@spautz/react-library-template": "workspace:^",
+    "clsx": "2.1.1",
+    "prism-react-renderer": "2.4.1",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-live": "4.1.8"
+  },
+  "devDependencies": {
+    "@docusaurus/module-type-aliases": "3.9.2",
+    "@docusaurus/tsconfig": "3.9.2",
+    "@docusaurus/types": "3.9.2",
+    "@tsconfig/docusaurus": "2.0.7",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:"
+  },
+  "browserslist": {
+    "production": [
+      ">0.5%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 3 chrome version",
+      "last 3 firefox version",
+      "last 5 safari version"
+    ]
+  }
+}

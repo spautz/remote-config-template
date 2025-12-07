@@ -24,6 +24,7 @@ trustPolicyExclude:
 
 packages:
   - packages/*
+  - myconfig-values
   - demos/*
   - docs-website
 
