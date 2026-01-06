@@ -12,6 +12,6 @@ describe('App', () => {
   it('Renders without error', () => {
     render(<App />);
 
-    expect(screen.getByText('TodoComponent: Hello World!')).toBeVisible();
+    expect(screen.getByText('TODO: Hello World!')).toBeVisible();
   });
 });

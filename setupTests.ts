@@ -1,1 +1,1 @@
-import './packages/react-library-template/setupTests.ts';
+import './demos/browser-demo/setupTests.ts';

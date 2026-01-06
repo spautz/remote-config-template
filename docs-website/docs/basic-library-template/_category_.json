@@ -1,8 +1,0 @@
-{
-  "label": "basic-library-template",
-  "position": 2,
-  "link": {
-    "type": "generated-index",
-    "description": "`@spautz/basic-library-template` is an example package which does nothing of value."
-  }
-}

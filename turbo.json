@@ -31,10 +31,9 @@
     // the packages. See https://github.com/vercel/turborepo/discussions/7481
     "//#w:dependencies": {
       "dependsOn": [
-        //        "@spautz/basic-library-template#build",
-        //        "@spautz/browser-only-library-template#build",
-        //        "@spautz/react-library-template#build",
-        //        "@spautz/server-only-library-template#build"
+        "@spautz/myconfig-contracts#build",
+        "@spautz/myconfig-sdk#build",
+        "@spautz/myconfig-values#build"
       ]
     },
     // Lint checks cover the whole repo, so packages have to be resolvable

@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        package-name: [basic-library-template, react-library-template, browser-only-library-template, server-only-library-template]
+        package-name: [myconfig-contracts, myconfig-sdk, myconfig-values]
 
     steps:
       - uses: actions/checkout@v4.2.2
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        demo-name: [hello-world-cli, hello-world-ui]
+        demo-name: [browser-demo, server-demo, fullstack-demo]
 
     steps:
       - uses: actions/checkout@v4.2.2
@@ -74,40 +74,3 @@ jobs:
         run: |
           cd demos/${{ matrix.demo-name }}
           pnpm run all:ci
-
-  external-test-ci:
-    name: External-Test CI
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        external-test-name:
-          [
-            bun-vite5,
-            cra4-react16,
-            cra5-react18,
-            nextjs13-playwright,
-            remix-playwright,
-            vite4-react18-swc,
-            node20-cjs,
-            node20-esm,
-            node22-cjs,
-            node22-esm,
-            node24-cjs,
-            node24-esm,
-          ]
-
-    steps:
-      - uses: actions/checkout@v4.2.2
-
-      - uses: ./.github/reusable-workflows/setup-repo
-        with:
-          node-version: nvmrc
-          use-lockfile: false
-
-      - name: Yalc publish
-        run: |
-          ./scripts/update-external-test.sh ${{ matrix.external-test-name }}
-
-      - name: Run CI checks for external-test
-        run: |
-          ./scripts/run-external-test.sh ${{ matrix.external-test-name }} run-ci

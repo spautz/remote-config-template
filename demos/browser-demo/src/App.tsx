@@ -1,9 +1,8 @@
-import { helloWorld } from '@spautz/basic-library-template';
-import { TodoComponent } from '@spautz/react-library-template';
+import { helloWorld } from '@spautz/myconfig-sdk';
 import type { JSX } from 'react/jsx-runtime';
 
 function App(): JSX.Element {
-  return <TodoComponent>{helloWorld}</TodoComponent>;
+  return <div>TODO: {helloWorld}</div>;
 }
 
 export { App };
