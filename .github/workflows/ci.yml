@@ -14,7 +14,7 @@ jobs:
         node-version: [20.x, 22.x, 24.x, latest]
 
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v6.0.1
         with:
           fetch-depth: 0
 
@@ -44,7 +44,7 @@ jobs:
         package-name: [myconfig-contracts, myconfig-sdk, myconfig-values]
 
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v6.0.1
 
       - uses: ./.github/reusable-workflows/setup-repo
         with:
@@ -63,7 +63,7 @@ jobs:
         demo-name: [browser-demo, server-demo, fullstack-demo]
 
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v6.0.1
 
       - uses: ./.github/reusable-workflows/setup-repo
         with:
