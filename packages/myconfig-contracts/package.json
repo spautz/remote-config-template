@@ -73,7 +73,9 @@
     "build:verifypack": "ls *.tgz | xargs -I {} attw {} --exclude-entrypoints internal-raw-src",
     "size-check": "size-limit --why"
   },
-  "dependencies": {},
+  "dependencies": {
+    "zod": "^4.2.1"
+  },
   "devDependencies": {
     "@arethetypeswrong/cli": "catalog:",
     "@size-limit/esbuild": "catalog:",
@@ -82,6 +84,7 @@
     "publint": "catalog:",
     "size-limit": "catalog:",
     "source-map-explorer": "catalog:",
+    "tsd": "0.33.0",
     "tsdown": "catalog:"
   },
   "peerDependencies": {},
@@ -93,8 +96,8 @@
     },
     {
       "path": "./dist/esm/index.js",
-      "import": "{ helloWorld }",
-      "limit": "50 B"
+      "import": "{ featureFlagsV1Schema }",
+      "limit": "70 kB"
     }
   ]
 }

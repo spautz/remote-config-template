@@ -1,4 +1,7 @@
 {
   "extends": "../../tsconfig-base.typecheck.json",
+  "compilerOptions": {
+    "isolatedDeclarations": false
+  },
   "include": ["*.ts", "src"]
 }
