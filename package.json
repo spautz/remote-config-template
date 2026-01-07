@@ -96,6 +96,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,cjs,mjs,cts,mts}": [
+      "biome format --write",
       "oxlint"
     ]
   }
