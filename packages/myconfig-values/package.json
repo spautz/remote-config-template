@@ -67,7 +67,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "____ BUILD & VALIDATION TASKS ______________________________________": "",
     "build:clean": "rimraf --glob ./dist ./*.tgz",
-    "build:values": "echo TODO",
+    "build:values": "zx scripts/build-values.ts",
     "size-check": "size-limit --why"
   },
   "dependencies": {},
@@ -80,7 +80,8 @@
     "publint": "catalog:",
     "size-limit": "catalog:",
     "source-map-explorer": "catalog:",
-    "tsdown": "catalog:"
+    "tsdown": "catalog:",
+    "zx": "8.8.5"
   },
   "peerDependencies": {}
 }
