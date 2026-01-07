@@ -67,21 +67,21 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "____ BUILD & VALIDATION TASKS ______________________________________": "",
     "build:clean": "rimraf --glob ./dist ./*.tgz",
-    "build:values": "zx scripts/build-values.ts",
+    "build:values": "node --experimental-strip-types scripts/build-config-files.ts",
     "size-check": "size-limit --why"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@spautz/myconfig-contracts": "workspace:*"
+  },
   "devDependencies": {
     "@arethetypeswrong/cli": "catalog:",
     "@size-limit/esbuild": "catalog:",
     "@size-limit/esbuild-why": "catalog:",
     "@size-limit/file": "catalog:",
-    "@spautz/myconfig-contracts": "workspace:*",
     "publint": "catalog:",
     "size-limit": "catalog:",
     "source-map-explorer": "catalog:",
-    "tsdown": "catalog:",
-    "zx": "8.8.5"
+    "tsdown": "catalog:"
   },
   "peerDependencies": {}
 }

@@ -192,6 +192,13 @@ importers:
         version: 0.18.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20251202.1)(publint@0.3.16)(typescript@5.9.3)
 
   packages/myconfig-sdk:
+    dependencies:
+      '@spautz/myconfig-contracts':
+        specifier: workspace:*
+        version: link:../myconfig-contracts
+      '@spautz/myconfig-values':
+        specifier: workspace:*
+        version: link:../myconfig-values
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: 'catalog:'
@@ -205,12 +212,6 @@ importers:
       '@size-limit/file':
         specifier: 'catalog:'
         version: 12.0.0(size-limit@12.0.0(jiti@2.6.1))
-      '@spautz/myconfig-contracts':
-        specifier: workspace:*
-        version: link:../myconfig-contracts
-      '@spautz/myconfig-values':
-        specifier: workspace:*
-        version: link:../myconfig-values
       publint:
         specifier: 'catalog:'
         version: 0.3.16
@@ -225,6 +226,10 @@ importers:
         version: 0.18.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20251202.1)(publint@0.3.16)(typescript@5.9.3)
 
   packages/myconfig-values:
+    dependencies:
+      '@spautz/myconfig-contracts':
+        specifier: workspace:*
+        version: link:../myconfig-contracts
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: 'catalog:'
@@ -238,9 +243,6 @@ importers:
       '@size-limit/file':
         specifier: 'catalog:'
         version: 12.0.0(size-limit@12.0.0(jiti@2.6.1))
-      '@spautz/myconfig-contracts':
-        specifier: workspace:*
-        version: link:../myconfig-contracts
       publint:
         specifier: 'catalog:'
         version: 0.3.16
@@ -253,9 +255,6 @@ importers:
       tsdown:
         specifier: 'catalog:'
         version: 0.18.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20251202.1)(publint@0.3.16)(typescript@5.9.3)
-      zx:
-        specifier: 8.8.5
-        version: 8.8.5
 
 packages:
 
@@ -2856,11 +2855,6 @@ packages:
   zod@4.3.4:
     resolution: {integrity: sha512-Zw/uYiiyF6pUT1qmKbZziChgNPRu+ZRneAsMUDU6IwmXdWt5JwcUfy2bvLOCUtz5UniaN/Zx5aFttZYbYc7O/A==}
 
-  zx@8.8.5:
-    resolution: {integrity: sha512-SNgDF5L0gfN7FwVOdEFguY3orU5AkfFZm9B5YSHog/UDHv+lvmd82ZAsOenOkQixigwH2+yyH198AwNdKhj+RA==}
-    engines: {node: '>= 12.17.0'}
-    hasBin: true
-
 snapshots:
 
   '@acemir/cssom@0.9.30': {}
@@ -5291,5 +5285,3 @@ snapshots:
       yargs-parser: 22.0.0
 
   zod@4.3.4: {}
-
-  zx@8.8.5: {}

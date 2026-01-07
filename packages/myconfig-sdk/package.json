@@ -73,14 +73,15 @@
     "build:verifypack": "ls *.tgz | xargs -I {} attw {} --exclude-entrypoints internal-raw-src",
     "size-check": "size-limit --why"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@spautz/myconfig-contracts": "workspace:*",
+    "@spautz/myconfig-values": "workspace:*"
+  },
   "devDependencies": {
     "@arethetypeswrong/cli": "catalog:",
     "@size-limit/esbuild": "catalog:",
     "@size-limit/esbuild-why": "catalog:",
     "@size-limit/file": "catalog:",
-    "@spautz/myconfig-contracts": "workspace:*",
-    "@spautz/myconfig-values": "workspace:*",
     "publint": "catalog:",
     "size-limit": "catalog:",
     "source-map-explorer": "catalog:",
