@@ -1,10 +1,9 @@
 /*
- * Each top-level version records (1) which files must actually exist, and (2) any parameters
- * used to fetch files through the SDK's API.
+ * Fetch-params track the arguments that a consumer must provide to load a config file.
  */
+export * from './fetch-params/featureFlagFetchParamsV1.ts';
 
 /*
- * Entry-types track the individual values that will be found within the config files.
+ * Value-types track the individual keys and values that will be found within a config file.
  */
-export * from './entry-types/featureFlagsV1.ts';
-export * from './v1.ts';
+export * from './value-types/featureFlagsV1.ts';

@@ -1,6 +1,6 @@
-import { featureFlagsV1Schema } from '@spautz/myconfig-contracts';
+import { featureFlagValuesV1Schema } from '@spautz/myconfig-contracts';
 
-const featureFlagsConfig = featureFlagsV1Schema.parse({
+const featureFlagsConfig = featureFlagValuesV1Schema.parse({
   schemaVersion: 1,
   enableBeveragesFeature: true,
   enableEasterEggs: true,

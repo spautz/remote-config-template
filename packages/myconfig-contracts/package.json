@@ -96,7 +96,7 @@
     },
     {
       "path": "./dist/esm/index.js",
-      "import": "{ featureFlagsV1Schema }",
+      "import": "{ featureFlagValuesV1Schema }",
       "limit": "70 kB"
     }
   ]

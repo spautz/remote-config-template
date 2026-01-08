@@ -1,4 +1,4 @@
-import { featureFlagsV1Schema } from '@spautz/myconfig-contracts';
+import { featureFlagValuesV1Schema } from '@spautz/myconfig-contracts';
 import { describe, expect, test } from 'vitest';
 
 import { CONFIG_FILES as FEATURE_FLAG_CONFIG_FILES } from '../featureFlags.ts';
@@ -8,7 +8,7 @@ describe('Current featureFlagConfig values', () => {
     expect(FEATURE_FLAG_CONFIG_FILES['feature-flags.json']).toBeTruthy();
   });
   test('passes the contract schema', () => {
-    const featureFlagsConfig = featureFlagsV1Schema.parse(
+    const featureFlagsConfig = featureFlagValuesV1Schema.parse(
       FEATURE_FLAG_CONFIG_FILES['feature-flags.json'],
     );
     expect(featureFlagsConfig).toBeTruthy();
