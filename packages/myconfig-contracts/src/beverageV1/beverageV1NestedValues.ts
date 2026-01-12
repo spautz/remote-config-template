@@ -3,9 +3,11 @@ import z from 'zod/v4';
 /*
  * "Beverages" is just a made-up reference type.
  * https://stevenpautz.com/en/blog/2025/beverages/
+ *
+ * In this file, a "Beverage Entry" is a single record.
  */
 
-const schemaForOneTranslation = z.object({
+const translationSchema = z.object({
   label: z.string(),
   description: z.string(),
 });
@@ -17,13 +19,13 @@ const schemaForOneTranslation = z.object({
  *
  * Schemas should usually be non-strict (z.object, not z.strictObject) to accommodate future values.
  */
-const schemaForOneBeverage = z.object({
+const beverageV1EntrySchema = z.object({
   schemaVersion: z.literal(1),
   translations: z.object({
-    'en-US': schemaForOneTranslation,
-    'es-ES': schemaForOneTranslation.optional(),
-    'fr-FR': schemaForOneTranslation.optional(),
-    'de-DE': schemaForOneTranslation.optional(),
+    'en-US': translationSchema,
+    'es-ES': translationSchema.optional(),
+    'fr-FR': translationSchema.optional(),
+    'de-DE': translationSchema.optional(),
   }),
   isAlcoholic: z.boolean(),
   isAvailable: z.boolean(),
@@ -33,7 +35,7 @@ const schemaForOneBeverage = z.object({
  * Some examples of individual beverages within the beverageV1 config.
  * We'll run some extra tests for these, to ensure any internal schemaVersion changes are covered.
  */
-const exampleBeverageValues: Array<z.infer<typeof schemaForOneBeverage>> = [
+const beverageV1EntryExamples = [
   {
     schemaVersion: 1,
     translations: {
@@ -83,6 +85,6 @@ const exampleBeverageValues: Array<z.infer<typeof schemaForOneBeverage>> = [
     isAlcoholic: true,
     isAvailable: true,
   },
-];
+] as const;
 
-export { schemaForOneBeverage, exampleBeverageValues };
+export { beverageV1EntrySchema, beverageV1EntryExamples };

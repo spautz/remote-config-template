@@ -18,7 +18,7 @@ process.chdir(projectRoot);
 
 const srcDir = 'src';
 const distDir = 'dist';
-const listOfFilesFile = 'list-of-files.txt';
+const listOfFilesFile = 'src/list-of-files-created.txt';
 
 // These are the supported output file types
 const JSON_FILE_EXTENSIONS = ['.json', '.json5', '.jsonc'];

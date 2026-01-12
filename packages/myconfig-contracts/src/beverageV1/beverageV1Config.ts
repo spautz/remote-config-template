@@ -1,6 +1,6 @@
 import z from 'zod/v4';
 
-import { exampleBeverageValues, schemaForOneBeverage } from './beverageV1NestedValues.js';
+import { beverageV1EntryExamples, beverageV1EntrySchema } from './beverageV1NestedValues.js';
 
 /*
  * "Beverages" is just a made-up reference type.
@@ -16,7 +16,7 @@ import { exampleBeverageValues, schemaForOneBeverage } from './beverageV1NestedV
  */
 const beverageV1ConfigSchema = z.object({
   lastUpdatedAt: z.string(),
-  beverages: z.array(schemaForOneBeverage),
+  beverages: z.array(beverageV1EntrySchema),
 });
 
 type BeverageV1Config = z.infer<typeof beverageV1ConfigSchema>;
@@ -24,24 +24,20 @@ type BeverageV1Config = z.infer<typeof beverageV1ConfigSchema>;
 /**
  * Some examples of full beverageV1 configs, used for testing.
  */
-const exampleBeverageV1Configs = [
+const beverageV1ConfigExamples = [
   {
     lastUpdatedAt: '2026-01-01T00:00:00.000Z',
     beverages: [],
   },
   {
     lastUpdatedAt: '2026-01-02T00:00:00.000Z',
-    beverages: [exampleBeverageValues[0]],
-  },
-  {
-    lastUpdatedAt: '2026-01-02T00:00:00.000Z',
-    beverages: [exampleBeverageValues[exampleBeverageValues.length - 1]],
+    beverages: [beverageV1EntryExamples[0]],
   },
   {
     lastUpdatedAt: '2026-01-04T00:00:00.000Z',
-    beverages: exampleBeverageValues,
+    beverages: [...beverageV1EntryExamples],
   },
-];
+] as const;
 
 export type { BeverageV1Config };
-export { beverageV1ConfigSchema, exampleBeverageValues, exampleBeverageV1Configs };
+export { beverageV1ConfigSchema, beverageV1ConfigExamples };

@@ -1,7 +1,7 @@
 import { featureFlagValuesV1Schema } from '@spautz/myconfig-contracts';
 import { describe, expect, test } from 'vitest';
 
-import { CONFIG_FILES as FEATURE_FLAG_CONFIG_FILES } from '../featureFlags.ts';
+import { CONFIG_FILES as FEATURE_FLAG_CONFIG_FILES } from '../v1Beverage.ts';
 
 describe('Current featureFlagConfig values', () => {
   test('still provides the expected filename', () => {

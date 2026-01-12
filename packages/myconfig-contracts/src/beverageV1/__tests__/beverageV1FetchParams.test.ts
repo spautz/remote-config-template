@@ -1,49 +1,48 @@
-import { expectAssignable, expectType } from 'tsd';
 import { describe, expect, test } from 'vitest';
 
 import {
   type BeverageV1FetchParams,
-  beverageV1FetchParamsSchema,
-  type exampleBeverageV1FetchParams,
+  beverageV1FetchParamExamples,
+  beverageV1FetchParamSchema,
 } from '../beverageV1FetchParams.js';
 import {
-  type ALL_HISTORICAL_BeverageV1FetchParamTypes,
-  ALL_HISTORICAL_exampleBeverageV1FetchParams,
+  ALL_HISTORICAL__BeverageV1FetchParamExamples,
+  type ALL_HISTORICAL__BeverageV1FetchParamTypes,
 } from '../HISTORICAL_BEVERAGE_V1_TYPES.js';
+import { expectAssignable } from './testUtils.ts';
 
-/*
- * Ensure all historical typings are still valid matches for the current typing.
- */
-expectType<BeverageV1FetchParams>(
-  null as unknown as ALL_HISTORICAL_BeverageV1FetchParamTypes[number],
-);
+// The current examples must match the current typings
+expectAssignable<BeverageV1FetchParams>(beverageV1FetchParamExamples[0]);
+expectAssignable<Array<BeverageV1FetchParams>>(beverageV1FetchParamExamples);
 
-/*
- * Ensure all historical typings are still valid matches for current reference values.
- */
-expectType<(typeof exampleBeverageV1FetchParams)[number]>(
-  null as unknown as ALL_HISTORICAL_BeverageV1FetchParamTypes[number],
-);
+// Historical examples must still be valid
+expectAssignable<BeverageV1FetchParams>(ALL_HISTORICAL__BeverageV1FetchParamExamples[0]);
+expectAssignable<Array<BeverageV1FetchParams>>(ALL_HISTORICAL__BeverageV1FetchParamExamples);
 
-/*
- * Ensure the current typing still satisfies all historical typings.
- */
-expectAssignable<ALL_HISTORICAL_BeverageV1FetchParamTypes[number]>(
+// The current type must be assignable to all historical types
+expectAssignable<ALL_HISTORICAL__BeverageV1FetchParamTypes>(
   null as unknown as BeverageV1FetchParams,
 );
 
-/*
- * Ensure the current type still matches all historical reference values.
- */
-expectType<(typeof ALL_HISTORICAL_exampleBeverageV1FetchParams)[number]>(
-  null as unknown as BeverageV1FetchParams,
+// Current examples must still be valid against old contracts
+expectAssignable<ALL_HISTORICAL__BeverageV1FetchParamTypes>(beverageV1FetchParamExamples[0]);
+expectAssignable<ReadonlyArray<ALL_HISTORICAL__BeverageV1FetchParamTypes>>(
+  beverageV1FetchParamExamples,
 );
 
-describe('BeverageV1 Fetch-Params', () => {
+// Finally, validate all examples against the schema
+describe('BeverageV1 FetchParams', () => {
   test.each(
-    ALL_HISTORICAL_exampleBeverageV1FetchParams,
-  )('Historical values all pass current schema (index %#)', (exampleFetchParams) => {
-    const result = beverageV1FetchParamsSchema.safeParse(exampleFetchParams);
+    beverageV1FetchParamExamples,
+  )('Example values all pass current schema (#%#)', (exampleFetchParams) => {
+    const result = beverageV1FetchParamSchema.safeParse(exampleFetchParams);
+    expect(result.error).toBeFalsy();
+  });
+
+  test.each(
+    ALL_HISTORICAL__BeverageV1FetchParamExamples,
+  )('Historical values all pass current schema (%#: $milestoneName)', (exampleFetchParams) => {
+    const result = beverageV1FetchParamSchema.safeParse(exampleFetchParams);
     expect(result.error).toBeFalsy();
   });
 });

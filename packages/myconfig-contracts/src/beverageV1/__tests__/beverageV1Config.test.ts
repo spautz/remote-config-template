@@ -1,45 +1,44 @@
-import { expectAssignable, expectType } from 'tsd';
 import { describe, expect, test } from 'vitest';
 
 import {
   type BeverageV1Config,
+  beverageV1ConfigExamples,
   beverageV1ConfigSchema,
-  type exampleBeverageV1Configs,
 } from '../beverageV1Config.js';
 import {
-  type ALL_HISTORICAL_BeverageV1ConfigTypes,
-  ALL_HISTORICAL_exampleBeverageV1Configs,
+  ALL_HISTORICAL__BeverageV1ConfigExamples,
+  type ALL_HISTORICAL__BeverageV1ConfigTypes,
 } from '../HISTORICAL_BEVERAGE_V1_TYPES.js';
+import { expectAssignable } from './testUtils.ts';
 
-/*
- * Ensure all historical typings are still valid matches for the current typing.
- */
-expectType<BeverageV1Config>(null as unknown as ALL_HISTORICAL_BeverageV1ConfigTypes[number]);
+// The current examples must match the current typings
+expectAssignable<BeverageV1Config>(beverageV1ConfigExamples[0]);
+expectAssignable<Array<BeverageV1Config>>(beverageV1ConfigExamples);
 
-/*
- * Ensure all historical typings are still valid matches for current reference values.
- */
-expectType<(typeof exampleBeverageV1Configs)[number]>(
-  null as unknown as ALL_HISTORICAL_BeverageV1ConfigTypes[number],
-);
+// Historical examples must still be valid
+expectAssignable<BeverageV1Config>(ALL_HISTORICAL__BeverageV1ConfigExamples[0]);
+expectAssignable<Array<BeverageV1Config>>(ALL_HISTORICAL__BeverageV1ConfigExamples);
 
-/*
- * Ensure the current typing still satisfies all historical typings.
- */
-expectAssignable<ALL_HISTORICAL_BeverageV1ConfigTypes[number]>(null as unknown as BeverageV1Config);
+// The current type must be assignable to all historical types
+expectAssignable<ALL_HISTORICAL__BeverageV1ConfigTypes>(null as unknown as BeverageV1Config);
 
-/*
- * Ensure the current type still matches all historical reference values.
- */
-expectType<(typeof ALL_HISTORICAL_exampleBeverageV1Configs)[number]>(
-  null as unknown as BeverageV1Config,
-);
+// Current examples must still be valid against old contracts
+expectAssignable<ALL_HISTORICAL__BeverageV1ConfigTypes>(beverageV1ConfigExamples[0]);
+expectAssignable<ReadonlyArray<ALL_HISTORICAL__BeverageV1ConfigTypes>>(beverageV1ConfigExamples);
 
-describe('BeverageV1 Fetch-Params', () => {
+// Finally, validate all examples against the schema
+describe('BeverageV1 Configs', () => {
   test.each(
-    ALL_HISTORICAL_exampleBeverageV1Configs,
-  )('Historical values all pass current schema (index %#)', (exampleConfig) => {
-    const result = beverageV1ConfigSchema.safeParse(exampleConfig);
+    beverageV1ConfigExamples,
+  )('Example values all pass current schema (#%#)', (exampleConfigs) => {
+    const result = beverageV1ConfigSchema.safeParse(exampleConfigs);
+    expect(result.error).toBeFalsy();
+  });
+
+  test.each(
+    ALL_HISTORICAL__BeverageV1ConfigExamples,
+  )('Historical values all pass current schema (%#: $milestoneName)', (exampleConfigs) => {
+    const result = beverageV1ConfigSchema.safeParse(exampleConfigs);
     expect(result.error).toBeFalsy();
   });
 });
