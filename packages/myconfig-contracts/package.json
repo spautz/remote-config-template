@@ -96,8 +96,8 @@
     },
     {
       "path": "./dist/esm/index.js",
-      "import": "{ featureFlagValuesV1Schema }",
-      "limit": "70 kB"
+      "import": "{ beverageV1InfoSchema }",
+      "limit": "70 KB"
     }
   ]
 }
