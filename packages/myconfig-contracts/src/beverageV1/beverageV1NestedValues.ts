@@ -5,36 +5,35 @@ import z from 'zod/v4';
  * https://stevenpautz.com/en/blog/2025/beverages/
  */
 
-const schemaForEachTranslation = z.object({
+const schemaForOneTranslation = z.object({
   label: z.string(),
   description: z.string(),
 });
 
 /**
- * This tracks the shape of some data within the beverageV1 config.
- * In a real app you'd probably get this stuff from a backend instead of a json config:
+ * This tracks the shape of an individual beverage within the beverageV1 config.
+ * In a real app you'd probably get this stuff from a real backend instead of a json config:
  * this is just an example.
  *
- * The schema must be non-strict (z.object, not z.strictObject) to accommodate future values.
+ * Schemas should usually be non-strict (z.object, not z.strictObject) to accommodate future values.
  */
-const beverageV1InfoSchema = z.object({
+const schemaForOneBeverage = z.object({
   schemaVersion: z.literal(1),
   translations: z.object({
-    'en-US': schemaForEachTranslation,
-    'es-ES': schemaForEachTranslation.optional(),
-    'fr-FR': schemaForEachTranslation.optional(),
-    'de-DE': schemaForEachTranslation.optional(),
+    'en-US': schemaForOneTranslation,
+    'es-ES': schemaForOneTranslation.optional(),
+    'fr-FR': schemaForOneTranslation.optional(),
+    'de-DE': schemaForOneTranslation.optional(),
   }),
   isAlcoholic: z.boolean(),
   isAvailable: z.boolean(),
 });
 
-type BeverageV1Info = z.infer<typeof beverageV1InfoSchema>;
-
 /**
- * Some valid examples of data within the beverageV1 config.
+ * Some examples of individual beverages within the beverageV1 config.
+ * We'll run some extra tests for these, to ensure any internal schemaVersion changes are covered.
  */
-const exampleBeverageV1Values: Array<BeverageV1Info> = [
+const exampleBeverageValues: Array<z.infer<typeof schemaForOneBeverage>> = [
   {
     schemaVersion: 1,
     translations: {
@@ -86,5 +85,4 @@ const exampleBeverageV1Values: Array<BeverageV1Info> = [
   },
 ];
 
-export type { BeverageV1Info };
-export { beverageV1InfoSchema, exampleBeverageV1Values };
+export { schemaForOneBeverage, exampleBeverageValues };

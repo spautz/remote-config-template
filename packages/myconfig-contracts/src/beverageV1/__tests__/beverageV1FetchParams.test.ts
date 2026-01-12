@@ -5,28 +5,30 @@ import {
   type BeverageV1FetchParams,
   beverageV1FetchParamsSchema,
   type exampleBeverageV1FetchParams,
-} from '../beverageV1FetchParams.ts';
+} from '../beverageV1FetchParams.js';
 import {
-  type ALL_HISTORICAL_BeverageV1FetchParams,
+  type ALL_HISTORICAL_BeverageV1FetchParamTypes,
   ALL_HISTORICAL_exampleBeverageV1FetchParams,
-} from '../HISTORICAL_BEVERAGE_V1_TYPES.ts';
+} from '../HISTORICAL_BEVERAGE_V1_TYPES.js';
 
 /*
  * Ensure all historical typings are still valid matches for the current typing.
  */
-expectType<BeverageV1FetchParams>(null as unknown as ALL_HISTORICAL_BeverageV1FetchParams[number]);
+expectType<BeverageV1FetchParams>(
+  null as unknown as ALL_HISTORICAL_BeverageV1FetchParamTypes[number],
+);
 
 /*
  * Ensure all historical typings are still valid matches for current reference values.
  */
 expectType<(typeof exampleBeverageV1FetchParams)[number]>(
-  null as unknown as ALL_HISTORICAL_BeverageV1FetchParams[number],
+  null as unknown as ALL_HISTORICAL_BeverageV1FetchParamTypes[number],
 );
 
 /*
  * Ensure the current typing still satisfies all historical typings.
  */
-expectAssignable<ALL_HISTORICAL_BeverageV1FetchParams[number]>(
+expectAssignable<ALL_HISTORICAL_BeverageV1FetchParamTypes[number]>(
   null as unknown as BeverageV1FetchParams,
 );
 
