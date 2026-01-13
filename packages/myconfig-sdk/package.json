@@ -74,8 +74,9 @@
     "size-check": "size-limit --why"
   },
   "dependencies": {
-    "@spautz/myconfig-contracts": "workspace:*",
-    "@spautz/myconfig-values": "workspace:*"
+    "@spautz/myconfig-contracts": "workspace:^",
+    "@spautz/myconfig-values": "workspace:^",
+    "@tanstack/query-core": "^5.90.16"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "catalog:",
@@ -96,8 +97,8 @@
     },
     {
       "path": "./dist/esm/index.js",
-      "import": "{ helloWorld }",
-      "limit": "50 B"
+      "import": "{ getV1BeverageCacheEntry }",
+      "limit": "1 KB"
     }
   ]
 }

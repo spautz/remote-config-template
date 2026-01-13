@@ -196,11 +196,14 @@ importers:
   packages/myconfig-sdk:
     dependencies:
       '@spautz/myconfig-contracts':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../myconfig-contracts
       '@spautz/myconfig-values':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../myconfig-values
+      '@tanstack/query-core':
+        specifier: ^5.90.16
+        version: 5.90.16
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: 'catalog:'
@@ -228,14 +231,37 @@ importers:
         version: 0.18.4(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20251202.1)(publint@0.3.16)(typescript@5.9.3)
 
   packages/myconfig-values:
-    dependencies:
+    devDependencies:
+      '@arethetypeswrong/cli':
+        specifier: 'catalog:'
+        version: 0.18.2
+      '@size-limit/esbuild':
+        specifier: 'catalog:'
+        version: 12.0.0(size-limit@12.0.0(jiti@2.6.1))
+      '@size-limit/esbuild-why':
+        specifier: 'catalog:'
+        version: 12.0.0(size-limit@12.0.0(jiti@2.6.1))
+      '@size-limit/file':
+        specifier: 'catalog:'
+        version: 12.0.0(size-limit@12.0.0(jiti@2.6.1))
       '@spautz/myconfig-contracts':
         specifier: workspace:*
         version: link:../myconfig-contracts
-    devDependencies:
+      publint:
+        specifier: 'catalog:'
+        version: 0.3.16
       serve:
         specifier: 14.2.5
         version: 14.2.5
+      size-limit:
+        specifier: 'catalog:'
+        version: 12.0.0(jiti@2.6.1)
+      source-map-explorer:
+        specifier: 'catalog:'
+        version: 2.5.3
+      tsdown:
+        specifier: 'catalog:'
+        version: 0.18.4(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20251202.1)(publint@0.3.16)(typescript@5.9.3)
 
 packages:
 
@@ -973,6 +999,9 @@ packages:
 
   '@standard-schema/spec@1.0.0':
     resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
+
+  '@tanstack/query-core@5.90.16':
+    resolution: {integrity: sha512-MvtWckSVufs/ja463/K4PyJeqT+HMlJWtw6PrCpywznd2NSgO3m4KwO9RqbFqGg6iDE8vVMFWMeQI4Io3eEYww==}
 
   '@testing-library/dom@10.4.1':
     resolution: {integrity: sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg==}
@@ -3073,7 +3102,7 @@ snapshots:
       '@loaderkit/resolve': 1.0.4
       cjs-module-lexer: 1.4.3
       fflate: 0.8.2
-      lru-cache: 11.2.2
+      lru-cache: 11.2.4
       semver: 7.7.3
       typescript: 5.6.1-rc
       validate-npm-package-name: 5.0.1
@@ -3669,6 +3698,8 @@ snapshots:
       size-limit: 12.0.0(jiti@2.6.1)
 
   '@standard-schema/spec@1.0.0': {}
+
+  '@tanstack/query-core@5.90.16': {}
 
   '@testing-library/dom@10.4.1':
     dependencies:
