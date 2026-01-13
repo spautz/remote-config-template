@@ -12,7 +12,7 @@ function consoleLog(...args: Array<unknown>): void {
  * This doesn't do anything of value yet: just a thin wrapper around console.error
  */
 function consoleError(...args: Array<unknown>): void {
-  console.error(...args);
+  console.error('ERROR: ', ...args);
 }
 
 export { consoleLog, consoleError };
