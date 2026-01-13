@@ -11,7 +11,7 @@ import {
   ALL_HISTORICAL__BeverageV1FetchParamMilestones,
   type ALL_HISTORICAL__BeverageV1FetchParamTypes,
 } from '../HISTORICAL_BEVERAGE_V1_TYPES.js';
-import { expectAssignable } from './testUtils.ts';
+import { expectAssignable } from './testUtils.js';
 
 // The historical examples must match the historical typings
 

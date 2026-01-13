@@ -52,9 +52,10 @@ for await (const srcFile of allSrcFiles) {
 
     await mkdir(targetDirUnderDist, { recursive: true });
 
-    for (const [filenameToWrtie, rawContent] of Object.entries(CONFIG_FILES)) {
+    for (const [filenameToWrtie, rawContentOrPromise] of Object.entries(CONFIG_FILES)) {
       const targetPath = path.join(targetDirUnderDist, filenameToWrtie);
       const fileExtension = path.extname(filenameToWrtie);
+      const rawContent = await rawContentOrPromise;
       let contentToWrite: string;
 
       if (JSON_FILE_EXTENSIONS.includes(fileExtension)) {

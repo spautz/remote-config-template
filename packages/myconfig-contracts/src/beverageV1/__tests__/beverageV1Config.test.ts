@@ -9,7 +9,7 @@ import {
   ALL_HISTORICAL__BeverageV1ConfigExamples,
   type ALL_HISTORICAL__BeverageV1ConfigTypes,
 } from '../HISTORICAL_BEVERAGE_V1_TYPES.js';
-import { expectAssignable } from './testUtils.ts';
+import { expectAssignable } from './testUtils.js';
 
 // The current examples must match the current typings
 expectAssignable<BeverageV1Config>(beverageV1ConfigExamples[0]);
