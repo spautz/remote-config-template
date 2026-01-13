@@ -15,37 +15,7 @@
     "name": "Steven Pautz",
     "url": "https://stevenpautz.com"
   },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true,
-    "tag": "next"
-  },
-  "files": [
-    "dist/",
-    "docs/",
-    "src/",
-    "LICENSE",
-    "*.md"
-  ],
-  "source": "./src/index.ts",
   "type": "module",
-  "exports": {
-    ".": {
-      "import": {
-        "types": "./dist/esm/index.d.ts",
-        "default": "./dist/esm/index.js"
-      },
-      "require": {
-        "types": "./dist/cjs/index.d.cts",
-        "default": "./dist/cjs/index.cjs"
-      }
-    },
-    "./package.json": "./package.json"
-  },
-  "main": "./dist/cjs/index.cjs",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/esm/index.d.ts",
-  "sideEffects": false,
   "scripts": {
     "____ HOOKS _________________________________________________________": "",
     "prepack": "pnpm run clean && turbo run build",
@@ -55,10 +25,9 @@
     "all:ci": "turbo run pipeline-ci --ui=stream",
     "build": "pnpm run build:clean && pnpm run build:values",
     "clean": "pnpm run build:clean && pnpm run test:clean && rimraf --glob ./node_modules/.cache ./.turbo ./*.log",
-    "dev": "pnpm run build:clean && pnpm run build:watch",
+    "dev": "pnpm run \"/(build:watch|serve:dev)/\"",
     "lint": "biome check --write ",
     "lint:verify": "biome check ",
-    "publish:yalc": "yalc publish --sig --push --replace",
     "test:clean": "rimraf ./coverage",
     "test": "pnpm run test:clean       && vitest run --coverage",
     "test:ci": "pnpm run test:clean    && vitest run --coverage --bail 1",
@@ -68,21 +37,15 @@
     "____ BUILD & VALIDATION TASKS ______________________________________": "",
     "build:clean": "rimraf --glob ./dist ./*.tgz",
     "build:values": "node --experimental-strip-types scripts/build-config-files.ts",
-    "build:watch": "node --experimental-strip-types scripts/dev-server.ts",
-    "size-check": "size-limit --why"
+    "build:watch": "node --experimental-strip-types --watch scripts/build-config-files.ts",
+    "serve:dev": "serve dist/",
+    "serve:prod": "serve dist/"
   },
   "dependencies": {
     "@spautz/myconfig-contracts": "workspace:*"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "catalog:",
-    "@size-limit/esbuild": "catalog:",
-    "@size-limit/esbuild-why": "catalog:",
-    "@size-limit/file": "catalog:",
-    "publint": "catalog:",
-    "size-limit": "catalog:",
-    "source-map-explorer": "catalog:",
-    "tsdown": "catalog:"
+    "serve": "14.2.5"
   },
   "peerDependencies": {}
 }
