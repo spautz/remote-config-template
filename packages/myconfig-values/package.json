@@ -30,7 +30,17 @@
   "source": "./src/index.ts",
   "type": "module",
   "exports": {
-    "./configs/*": "./dist/*",
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.cts",
+        "default": "./dist/cjs/index.cjs"
+      }
+    },
+    "./configs/v1/beverages.json": "./dist/v1/beverages.json",
     "./package.json": "./package.json"
   },
   "main": "./dist/cjs/index.cjs",
@@ -44,7 +54,7 @@
     "____ STANDARD PACKAGE TASKS ________________________________________": "",
     "all": "turbo run pipeline-all",
     "all:ci": "turbo run pipeline-ci --ui=stream",
-    "build": "pnpm run build:clean && pnpm run build:values",
+    "build": "pnpm run build:clean && pnpm run build:lib && pnpm run build:values",
     "clean": "pnpm run build:clean && pnpm run test:clean && rimraf --glob ./node_modules/.cache ./.turbo ./*.log",
     "dev": "pnpm run build:clean && pnpm run \"/(build:watch|serve:dev)/\"",
     "lint": "biome check --write ",
@@ -58,6 +68,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "____ BUILD & VALIDATION TASKS ______________________________________": "",
     "build:clean": "rimraf --glob ./dist ./*.tgz",
+    "build:lib": "tsdown --config ./tsdown.config.ts",
     "build:values": "node --experimental-strip-types scripts/build-config-files.ts",
     "build:watch": "node --experimental-strip-types --watch scripts/build-config-files.ts",
     "serve:dev": "serve dist/",

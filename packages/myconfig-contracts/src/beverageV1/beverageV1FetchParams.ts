@@ -16,8 +16,16 @@ type BeverageV1FetchParams = undefined | Record<never, never>;
 /**
  * A list of current fetch param examples, used for testing.
  */
-
 const beverageV1FetchParamExamples: Array<BeverageV1FetchParams> = [undefined, {}] as const;
 
+/**
+ * Canonical way to build the path to a particular config file.
+ *
+ * This SHOULD be used by the SDK to generate the full URL when fetching.
+ * This MAY be used by the Values package to generate the CONFIG_FILE keys for filenames.
+ */
+const convertFetchParamsToURLPath = (_fetchParams?: BeverageV1FetchParams): string =>
+  'beverages.json';
+
 export type { BeverageV1FetchParams };
-export { beverageV1FetchParamSchema, beverageV1FetchParamExamples };
+export { beverageV1FetchParamSchema, beverageV1FetchParamExamples, convertFetchParamsToURLPath };
