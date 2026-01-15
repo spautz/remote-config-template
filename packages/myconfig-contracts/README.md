@@ -1,6 +1,10 @@
-# Basic Library Template
+# Contracts Package
 
-Example package for a general-use Javascript library. Used to test the publishing workflow, NPM provenance, and per-package code coverage.
+Part of the [package-wrapped remote configs template](https://github.com/spautz/remote-config-template).
+
+NPM package that provides common typings for the config values and the client package -- both current and legacy, to ensure backwards compatibility.
+
+This is used internally to ensure the team managing the <span style="font-variant:small-caps;">json</span> values does not break external consumers.
 
 [![npm version](https://img.shields.io/npm/v/@spautz/myconfig-contracts.svg)](https://www.npmjs.com/package/@spautz/myconfig-contracts)
 [![readme](https://img.shields.io/badge/-readme-informational)](https://github.com/spautz/remote-config-template/blob/main/packages/myconfig-contracts/README.md)
@@ -9,4 +13,6 @@ Example package for a general-use Javascript library. Used to test the publishin
 [![vulnerabilities](https://snyk.io/test/npm/@spautz/myconfig-contracts/badge.svg)](https://snyk.io/test/npm/@spautz/myconfig-contracts)
 [![gzip size](https://img.shields.io/bundlephobia/minzip/@spautz/myconfig-contracts.svg)](https://bundlephobia.com/package/@spautz/myconfig-contracts@latest)
 
-For more information or related packages, see the [remote-config-template workspace](https://github.com/spautz/remote-config-template).
+_This is under active development, last updated January 2026. Docs to come._
+
+For more information or related packages, see the [Remote-Config-Template workspace](https://github.com/spautz/remote-config-template).

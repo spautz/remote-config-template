@@ -24,6 +24,7 @@ packages:
 
 catalog:
   # Shared between packages and demos:
+  '@types/node': 24.1.0
   '@types/react': 19.2.7
   '@types/react-dom': 19.2.3
   '@testing-library/jest-dom': 6.9.1
