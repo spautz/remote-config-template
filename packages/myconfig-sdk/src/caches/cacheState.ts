@@ -14,39 +14,41 @@ import { hashKey } from '@tanstack/query-core';
 
 // Each distinct config (as identified by its fetchParams) will be in one of these states.
 // This represents *presence*: other values below track freshness and updates.
-const CACHED_VALUE__NONE = 0;
+const CACHE_VALUE_SOURCE__NONE = 0;
+/**
+ * Supplied by a local copy of the values package. Considered stale.
+ * (not yet implemented)
+ */
+const CACHE_VALUE_SOURCE__BACKUP = 1;
 /**
  * Supplied by the host app, but may be overridden. Useful for server cases.
  */
-const CACHED_VALUE__IS_SEED = 1;
-/**
- * Supplied by a local copy of the values package. Considered stale.
- */
-const CACHED_VALUE__IS_BACKUP = 2;
+const CACHE_VALUE_SOURCE__SEED = 2;
 /**
  * Fetched from a remote source. Generally up-to-date.
  */
-const CACHED_VALUE__IS_REMOTE = 3;
+const CACHE_VALUE_SOURCE__REMOTE = 3;
 /**
  * Specified by the host app, and may not be overridden. Useful for testing.
  */
-const CACHED_VALUE__IS_OVERRIDE = 4;
+const CACHE_VALUE_SOURCE__OVERRIDE = 4;
 
-type CacheValueStatus =
-  | typeof CACHED_VALUE__NONE
-  | typeof CACHED_VALUE__IS_SEED
-  | typeof CACHED_VALUE__IS_BACKUP
-  | typeof CACHED_VALUE__IS_REMOTE
-  | typeof CACHED_VALUE__IS_OVERRIDE;
+type CacheValueSource =
+  | typeof CACHE_VALUE_SOURCE__NONE
+  | typeof CACHE_VALUE_SOURCE__BACKUP
+  | typeof CACHE_VALUE_SOURCE__SEED
+  | typeof CACHE_VALUE_SOURCE__REMOTE
+  | typeof CACHE_VALUE_SOURCE__OVERRIDE;
 
-const CACHE_FRESHNESS__NONE = 0;
-const CACHE_FRESHNESS__STALE = 1;
-const CACHE_FRESHNESS__FRESH = 2;
+// These only apply for CACHE_VALUE_SOURCE__REMOTE
+const CACHE_VALUE_FRESHNESS__NONE = 0;
+const CACHE_VALUE_FRESHNESS__STALE = 1;
+const CACHE_VALUE_FRESHNESS__FRESH = 2;
 
 type CacheValueFreshness =
-  | typeof CACHE_FRESHNESS__NONE
-  | typeof CACHE_FRESHNESS__STALE
-  | typeof CACHE_FRESHNESS__FRESH;
+  | typeof CACHE_VALUE_FRESHNESS__NONE
+  | typeof CACHE_VALUE_FRESHNESS__STALE
+  | typeof CACHE_VALUE_FRESHNESS__FRESH;
 
 /**
  * Tracks status and freshness of a single config file.
@@ -60,13 +62,13 @@ type CacheEntry<FetchParamsType, ValueType> = {
   remoteUrl: URL;
 } & (
   | {
-      valueStatus: typeof CACHED_VALUE__NONE;
-      valueFreshness: typeof CACHE_FRESHNESS__NONE;
+      valueSource: typeof CACHE_VALUE_SOURCE__NONE;
+      valueFreshness: typeof CACHE_VALUE_FRESHNESS__NONE;
       value: null;
       lastUpdatedAt: 0;
     }
   | {
-      valueStatus: Omit<CacheValueStatus, typeof CACHED_VALUE__NONE>;
+      valueSource: Exclude<CacheValueSource, typeof CACHE_VALUE_SOURCE__NONE>;
       freshnessStatus: CacheValueFreshness;
       value: ValueType;
       lastUpdatedAt: number;
@@ -119,8 +121,8 @@ const _initializeCacheEntryForParams = <FetchParamsType, ValueType>(
   // @TODO: Track errors: result, retryCount, timing
   fetchParams,
   remoteUrl: cacheStateContainer.convertFetchParamsToUrl(fetchParams, cacheStateContainer.baseUrl),
-  valueStatus: CACHED_VALUE__NONE,
-  valueFreshness: CACHE_FRESHNESS__NONE,
+  valueSource: CACHE_VALUE_SOURCE__NONE,
+  valueFreshness: CACHE_VALUE_FRESHNESS__NONE,
   value: null,
   lastUpdatedAt: 0,
 });
@@ -139,16 +141,48 @@ const getCacheEntry = <FetchParamsType, ValueType>(
   return cacheStateContainer._state[cacheKey];
 };
 
-export type { CacheValueStatus, CacheValueFreshness, CacheEntry, CacheStateContainer };
+const setCacheValue = <FetchParamsType, ValueType>(
+  cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
+  fetchParams: FetchParamsType,
+  newValue: ValueType,
+  source: CacheValueSource,
+): CacheEntry<FetchParamsType, ValueType> => {
+  const cacheEntry = getCacheEntry(cacheStateContainer, fetchParams);
+
+  // Only set a new value if it's a higher-or-equal priority source than we already have
+  if (source >= cacheEntry.valueSource) {
+    // MUTATION
+    Object.assign(cacheEntry, {
+      valueSource: source,
+      freshnessStatus:
+        source === CACHE_VALUE_SOURCE__REMOTE
+          ? CACHE_VALUE_FRESHNESS__FRESH
+          : CACHE_VALUE_FRESHNESS__STALE,
+      value: newValue,
+      lastUpdatedAt: Date.now(),
+    });
+  } else if (process.env.NODE_ENV !== 'production') {
+    console.warn(
+      'Ignoring new Beverage config value because we already have a higher-priority source: ',
+      newValue,
+      cacheEntry,
+    );
+  }
+
+  return cacheEntry;
+};
+
+export type { CacheValueSource, CacheValueFreshness, CacheEntry, CacheStateContainer };
 export {
-  CACHED_VALUE__NONE,
-  CACHED_VALUE__IS_SEED,
-  CACHED_VALUE__IS_BACKUP,
-  CACHED_VALUE__IS_REMOTE,
-  CACHED_VALUE__IS_OVERRIDE,
-  CACHE_FRESHNESS__NONE,
-  CACHE_FRESHNESS__STALE,
-  CACHE_FRESHNESS__FRESH,
+  CACHE_VALUE_SOURCE__NONE,
+  CACHE_VALUE_SOURCE__BACKUP,
+  CACHE_VALUE_SOURCE__SEED,
+  CACHE_VALUE_SOURCE__REMOTE,
+  CACHE_VALUE_SOURCE__OVERRIDE,
+  CACHE_VALUE_FRESHNESS__NONE,
+  CACHE_VALUE_FRESHNESS__STALE,
+  CACHE_VALUE_FRESHNESS__FRESH,
   initializeCacheStateContainer,
   getCacheEntry,
+  setCacheValue,
 };

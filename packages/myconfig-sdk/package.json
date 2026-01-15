@@ -97,8 +97,8 @@
     },
     {
       "path": "./dist/esm/index.js",
-      "import": "{ getV1BeverageCacheEntry }",
-      "limit": "1 KB"
+      "import": "{ initializeV1BeverageCache }",
+      "limit": "75 KB"
     }
   ]
 }

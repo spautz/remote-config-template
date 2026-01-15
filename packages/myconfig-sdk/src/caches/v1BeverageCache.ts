@@ -1,16 +1,18 @@
 import {
   type BeverageV1Config,
   type BeverageV1FetchParams,
+  beverageV1ConfigSchema,
+  beverageV1FetchParamSchema,
   convertFetchParamsToURLPath,
 } from '@spautz/myconfig-contracts';
 
 import {
   type CacheEntry,
   type CacheStateContainer,
-  // CACHE_FRESHNESS__STALE,
-  // CACHED_VALUE__IS_BACKUP,
+  type CacheValueSource,
   getCacheEntry,
   initializeCacheStateContainer,
+  setCacheValue,
 } from './cacheState.ts';
 
 let cacheStateContainer: CacheStateContainer<BeverageV1FetchParams, BeverageV1Config>;
@@ -33,7 +35,7 @@ const getRemoteUrlForBeverageConfig = (
 /**
  * Initializes the Beverage cache with a base URL. This is required before you do anything else.
  */
-const initializeBeverageCache = (baseUrl: string | URL): void => {
+const initializeV1BeverageCache = (baseUrl: string | URL): void => {
   cacheStateContainer = initializeCacheStateContainer<BeverageV1FetchParams, BeverageV1Config>(
     // @TODO: Full options object, store baseUrl here
     'v1Beverage',
@@ -47,10 +49,35 @@ const initializeBeverageCache = (baseUrl: string | URL): void => {
 /**
  * Returns the internal cache entry for a given Beverage config.
  */
-const getV1BeverageCacheEntry = (
-  fetchParams?: BeverageV1FetchParams,
-): CacheEntry<BeverageV1FetchParams, BeverageV1Config> =>
-  getCacheEntry(cacheStateContainer, fetchParams);
+const internal_getV1BeverageCacheEntry = (
+  fetchParams: BeverageV1FetchParams,
+): CacheEntry<BeverageV1FetchParams, BeverageV1Config> => {
+  const validation = beverageV1FetchParamSchema.safeParse(fetchParams);
+  if (validation.error) {
+    console.error('Invalid fetchParams for Beverage config: ', validation, fetchParams);
+    throw new Error(`Invalid fetchParams for Beverage config: ${validation.error}`);
+  }
+
+  return getCacheEntry(cacheStateContainer, fetchParams);
+};
+
+/**
+ * Populates the cache with the value provided, if it's valid.
+ */
+const internal_setV1BeverageConfig = (
+  fetchParams: BeverageV1FetchParams,
+  newValue: BeverageV1Config,
+  source: CacheValueSource,
+): CacheEntry<BeverageV1FetchParams, BeverageV1Config> => {
+  // Validate against the schema, but pass through the original value in case there's anything special about it
+  const validation = beverageV1ConfigSchema.safeParse(newValue);
+  if (validation.error) {
+    console.error('Invalid fetchParams for Beverage config: ', validation, newValue);
+    throw new Error(`Invalid value for Beverage config: ${validation.error}`);
+  }
+
+  return setCacheValue(cacheStateContainer, fetchParams, newValue, source);
+};
 
 /**
  * Returns the full internal cache state container. Do not use unless you know what you're doing.
@@ -61,34 +88,9 @@ const internal_getV1BeverageCacheStateContainer = (): CacheStateContainer<
   BeverageV1Config
 > => cacheStateContainer;
 
-// /**
-//  * Populates a config file using the local backup (and updates its cache entry)
-//  * @TODO: Lift this up so that we aren't importing across sections
-//  */
-// const loadBeverageConfigFromBackup = async (
-//   fetchParams?: BeverageV1FetchParams,
-// ): Promise<BeverageV1Config> => {
-//   const cacheEntry = getCacheEntry(cacheStateContainer, fetchParams);
-//   if (!cacheEntry.backupPromise) {
-//     cacheEntry.backupPromise = loadV1BeverageBackupConfig(fetchParams).then((backupValue) => {
-//       Object.assign(cacheEntry, {
-//         valueStatus: CACHED_VALUE__IS_BACKUP,
-//         freshnessStatus: CACHE_FRESHNESS__STALE,
-//         value: backupValue,
-//         lastUpdatedAt: Date.now(),
-//       });
-//       return backupValue;
-//     });
-//     // Non-chained to make the types happy
-//     cacheEntry.backupPromise.catch((error) => {
-//       console.error('Error loading Beverage config from backup: ', error);
-//     });
-//   }
-//   return cacheEntry.backupPromise;
-// };
-
 export {
-  initializeBeverageCache,
-  getV1BeverageCacheEntry,
+  initializeV1BeverageCache,
+  internal_getV1BeverageCacheEntry,
+  internal_setV1BeverageConfig,
   internal_getV1BeverageCacheStateContainer,
 };

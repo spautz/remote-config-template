@@ -37,7 +37,7 @@ describe('Cache State Container', () => {
         remoteUrl: new URL('https://example.com/unit-test-example.json'),
         value: null,
         valueFreshness: 0,
-        valueStatus: 0,
+        valueSource: 0,
       });
     });
   });
