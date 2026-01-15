@@ -1,6 +1,3 @@
-import type { JSX } from 'react/jsx-runtime';
-import { useState } from 'react';
-
 import {
   type BeverageV1Config,
   initializeV1BeverageCache,
@@ -10,6 +7,8 @@ import {
 } from '@spautz/myconfig-sdk';
 import { ALL_CONFIG_FILE_PATHS } from '@spautz/myconfig-values';
 import SEED_VALUE from '@spautz/myconfig-values/configs/v1/beverages.json' with { type: 'json' };
+import { useState } from 'react';
+import type { JSX } from 'react/jsx-runtime';
 
 function App(): JSX.Element {
   initializeV1BeverageCache('https://localhost:3000/');
