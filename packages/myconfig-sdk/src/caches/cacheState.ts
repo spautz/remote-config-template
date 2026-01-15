@@ -73,23 +73,33 @@ type CacheEntry<FetchParamsType, ValueType> = {
     }
 );
 
+type FetchParamsToURLConverter<FetchParamsType> = (
+  fetchParams: FetchParamsType,
+  baseUrl: string | URL,
+) => URL;
+
 /**
  * A collection of status & freshness information for all config files.
  */
 interface CacheStateContainer<FetchParamsType, ValueType> {
   _state: Record<string, CacheEntry<FetchParamsType, ValueType>>;
   debugLabel: string;
-  fetchParamsToURLFn: (fetchParams: FetchParamsType) => URL;
+  baseUrl: URL | string;
+  convertFetchParamsToUrl: FetchParamsToURLConverter<FetchParamsType>;
 }
 
 const initializeCacheStateContainer = <FetchParamsType, ValueType>(
   debugLabel: string,
-  fetchParamsToURLFn: (fetchParams: FetchParamsType) => URL,
+  {
+    baseUrl,
+    convertFetchParamsToUrl,
+  }: { baseUrl: URL | string; convertFetchParamsToUrl: FetchParamsToURLConverter<FetchParamsType> },
 ): CacheStateContainer<FetchParamsType, ValueType> => {
   return {
     _state: Object.create(null),
     debugLabel,
-    fetchParamsToURLFn,
+    baseUrl,
+    convertFetchParamsToUrl,
   };
 };
 
@@ -100,7 +110,7 @@ const _getCacheKeyForParams = <FetchParamsType, ValueType>(
   return hashKey([fetchParams]);
 };
 
-const _initializeCacheStateForParams = <FetchParamsType, ValueType>(
+const _initializeCacheEntryForParams = <FetchParamsType, ValueType>(
   cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
   fetchParams: FetchParamsType,
 ): CacheEntry<FetchParamsType, ValueType> => ({
@@ -108,7 +118,7 @@ const _initializeCacheStateForParams = <FetchParamsType, ValueType>(
   remotePromise: null,
   // @TODO: Track errors: result, retryCount, timing
   fetchParams,
-  remoteUrl: cacheStateContainer.fetchParamsToURLFn(fetchParams),
+  remoteUrl: cacheStateContainer.convertFetchParamsToUrl(fetchParams, cacheStateContainer.baseUrl),
   valueStatus: CACHED_VALUE__NONE,
   valueFreshness: CACHE_FRESHNESS__NONE,
   value: null,
@@ -121,7 +131,7 @@ const getCacheEntry = <FetchParamsType, ValueType>(
 ): CacheEntry<FetchParamsType, ValueType> => {
   const cacheKey = _getCacheKeyForParams(cacheStateContainer, fetchParams);
   if (!cacheStateContainer._state[cacheKey]) {
-    cacheStateContainer._state[cacheKey] = _initializeCacheStateForParams(
+    cacheStateContainer._state[cacheKey] = _initializeCacheEntryForParams(
       cacheStateContainer,
       fetchParams,
     );

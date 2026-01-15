@@ -30,6 +30,8 @@
   "source": "./src/index.ts",
   "type": "module",
   "exports": {
+    "./configs/v1/beverages.json": "./dist/configs/v1/beverages.json",
+    "./configs/*": "./dist/configs/*",
     ".": {
       "import": {
         "types": "./dist/esm/index.d.ts",
@@ -40,7 +42,6 @@
         "default": "./dist/cjs/index.cjs"
       }
     },
-    "./configs/v1/beverages.json": "./dist/v1/beverages.json",
     "./package.json": "./package.json"
   },
   "main": "./dist/cjs/index.cjs",

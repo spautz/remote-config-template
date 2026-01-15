@@ -6,24 +6,27 @@ describe('Cache State Container', () => {
   describe('initializeCacheStateContainer', () => {
     it('should initialize a blank state container', () => {
       const alwaysReturnExampleUrl = () => new URL('https://example.com/unit-test-example.json');
-      const cacheStateContainer = initializeCacheStateContainer(
-        'unit tests',
-        alwaysReturnExampleUrl,
-      );
+      const cacheStateContainer = initializeCacheStateContainer('unit tests', {
+        baseUrl: 'https://example.com',
+        convertFetchParamsToUrl: alwaysReturnExampleUrl,
+      });
+
       expect(cacheStateContainer).toEqual({
         _state: {},
         debugLabel: 'unit tests',
-        fetchParamsToURLFn: alwaysReturnExampleUrl,
+        baseUrl: 'https://example.com',
+        convertFetchParamsToUrl: alwaysReturnExampleUrl,
       });
     });
   });
 
   describe('getCacheEntry', () => {
     it('should return a blank cache entry on first call', () => {
-      const cacheStateContainer = initializeCacheStateContainer(
-        'unit tests',
-        () => new URL('https://example.com/unit-test-example.json'),
-      );
+      const alwaysReturnExampleUrl = () => new URL('https://example.com/unit-test-example.json');
+      const cacheStateContainer = initializeCacheStateContainer('unit tests', {
+        baseUrl: 'https://example.com',
+        convertFetchParamsToUrl: alwaysReturnExampleUrl,
+      });
       const cacheEntry = getCacheEntry(cacheStateContainer, 'example param');
 
       expect(cacheEntry).toMatchObject({

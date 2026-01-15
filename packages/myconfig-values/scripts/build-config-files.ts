@@ -8,8 +8,9 @@ import { consoleError, consoleLog } from './_helpers/script-utils.ts';
 
 const EXIT_CODE__NO_FILES_WRITTEN = 1;
 const EXIT_CODE__UNSUPPORTED_FILE_EXTENSION = 2;
-const EXIT_CODE__INVALID_DATA_FOR_FILE_EXTENSION = 2;
+const EXIT_CODE__INVALID_DATA_FOR_FILE_EXTENSION = 3;
 const EXIT_CODE__FILES_REMOVED = 4;
+const EXIT_CODE__FILE_PATH_MISMATCH = 5;
 
 // We always run in `packages/myconfig-values/`: all paths are relative to that.
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -17,7 +18,7 @@ const projectRoot = path.resolve(__dirname, '..');
 process.chdir(projectRoot);
 
 const srcDir = 'src';
-const distDir = 'dist';
+const distDir = 'dist/configs';
 const listOfFilesFile = 'src/list-of-files-created.txt';
 
 // These are the supported output file types
@@ -46,14 +47,19 @@ for await (const srcFile of allSrcFiles) {
   // If we found a config, save whatever files it specifies
   const { CONFIG_FILES } = module as { CONFIG_FILES?: Record<string, unknown> };
   if (CONFIG_FILES) {
-    // However deep the file was under `src/`, use that as the prefix for the files we're going to write
     const filePathUnderSrc = path.dirname(path.relative(srcDir, srcFile));
-    const targetDirUnderDist = path.join(distDir, filePathUnderSrc);
-
-    await mkdir(targetDirUnderDist, { recursive: true });
 
     for (const [filenameToWrtie, rawContentOrPromise] of Object.entries(CONFIG_FILES)) {
-      const targetPath = path.join(targetDirUnderDist, filenameToWrtie);
+      // Sanity check: the file's path under `src/` should match its path when built.
+      // This makes debugging and maintenance smoother, and can help catch mistakes.
+      if (!filenameToWrtie.startsWith(filePathUnderSrc)) {
+        consoleError(
+          `Config file "${filenameToWrtie}" does not match its location: ${filePathUnderSrc}`,
+        );
+        process.exit(EXIT_CODE__FILE_PATH_MISMATCH);
+      }
+
+      const targetPath = path.join(distDir, filenameToWrtie);
       const fileExtension = path.extname(filenameToWrtie);
       const rawContent = await rawContentOrPromise;
       let contentToWrite: string;
@@ -83,6 +89,11 @@ for await (const srcFile of allSrcFiles) {
       }
 
       consoleLog(`Writing ${targetPath}`);
+
+      // Ensure the directory exists
+      const dirName = path.dirname(targetPath);
+      await mkdir(dirName, { recursive: true });
+
       await writeFile(targetPath, contentToWrite);
       allOutputFiles.push(path.relative(distDir, targetPath).replaceAll('\\', '/'));
     }

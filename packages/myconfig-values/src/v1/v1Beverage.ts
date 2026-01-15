@@ -28,5 +28,5 @@ const allBeverages: Promise<BeverageV1Config> = Promise.resolve({
  * The build step will generate these files relative to `v1/`, each holding the values provided
  */
 export const CONFIG_FILES = {
-  'beverages.json': allBeverages,
+  'v1/beverages.json': allBeverages,
 };

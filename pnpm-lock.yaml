@@ -145,6 +145,9 @@ importers:
       '@spautz/myconfig-sdk':
         specifier: workspace:^
         version: link:../../packages/myconfig-sdk
+      '@spautz/myconfig-values':
+        specifier: workspace:^
+        version: link:../../packages/myconfig-values
     devDependencies:
       '@types/react':
         specifier: 'catalog:'

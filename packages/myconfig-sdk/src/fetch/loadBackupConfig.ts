@@ -4,8 +4,6 @@ import {
   convertFetchParamsToURLPath,
 } from '@spautz/myconfig-contracts';
 
-// import { getConfigUrl } from '@spautz/myconfig-values';
-
 /**
  * Supplies a config file from the Values package under node_modules.
  * This should always succeed in Node environments, and it can work as a fallback if an up-to-date

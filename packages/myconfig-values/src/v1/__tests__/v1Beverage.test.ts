@@ -6,7 +6,7 @@ import { CONFIG_FILES } from '../v1Beverage.js';
 describe('Current v1Beverage config', () => {
   // A hardcoded filename isn't a great practice, but it's useful here
   test('still provides the expected filename', () => {
-    expect(CONFIG_FILES['beverages.json']).toBeTruthy();
+    expect(CONFIG_FILES['v1/beverages.json']).toBeTruthy();
   });
 
   test.each(Object.keys(CONFIG_FILES))('%s has a valid schema', async (filename) => {
