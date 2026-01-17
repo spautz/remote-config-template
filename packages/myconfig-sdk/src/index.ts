@@ -2,8 +2,10 @@
 export {
   type BeverageV1Payload,
   beverageV1PayloadSchema,
-  convertBeverageV1FetchParamsToURLPath,
 } from '@spautz/myconfig-contracts';
 
-export * from './caches/v1BeverageCache.js';
-export * from './fetch/loadBackupConfig.ts';
+// Public APIs
+export * from './beverageCache.js';
+
+// Internal pieces, for people (and demos) who know what they're doing
+export * from './caches/v1BeverageCacheState.js';

@@ -75,8 +75,7 @@
   },
   "dependencies": {
     "@spautz/myconfig-contracts": "workspace:^",
-    "@spautz/myconfig-values": "workspace:^",
-    "@tanstack/query-core": "^5.90.16"
+    "@spautz/myconfig-values": "workspace:^"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "catalog:",

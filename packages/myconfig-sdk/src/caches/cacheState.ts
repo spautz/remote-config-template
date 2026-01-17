@@ -1,79 +1,76 @@
-import { hashKey } from '@tanstack/query-core';
-
 /*
  * This file defines general, abstract utils and for tracking cache state.
  * Each config-specific store should rely on this to set up its own local cache.
  *
  * Terminology:
- *    "config file": a single json config, uniquely identified by its fetchParams
- *    "config category": the type (and schema) of a config file, like "v1Beverage"
- *    "cache entry": the metadata and internal status of one config file
- *    "cache state container": the set of cache entries and config file values for all available json configs
- *      in a given category, along with metadata for mapping params to config files and cache entries
+ *    "config payload": a single json config (i.e., one file), uniquely identified by its URL
+ *    "config category": the type (and schema) of a config payload, like "v1Beverage"
+ *    "cache state entry": the metadata and internal status of one config payload
+ *    "cache state container": the set of cache entries for all available URLs in a given category,
+ *      along with metadata for mapping params to config files and cache entries
+ *
+ * These should generally not be called except through a category-specific store
+ * (like v1BeverageCacheState) -- the functions are all prefixed with "internalCacheState_"
+ * to discourage casual use.
  */
 
-// Each distinct config (as identified by its fetchParams) will be in one of these states.
+// Each config payload (identified by its URL) will be in one of these states.
 // This represents *presence*: other values below track freshness and updates.
-const CACHE_VALUE_SOURCE__NONE = 0;
+// Ordered from lowest to highest priority:
+const CACHED_PAYLOAD_SOURCE__NONE = 0;
 /**
  * Supplied by a local copy of the values package. Considered stale.
  * (not yet implemented)
  */
-const CACHE_VALUE_SOURCE__BACKUP = 1;
+const CACHED_PAYLOAD_SOURCE__BACKUP = 1;
 /**
  * Supplied by the host app, but may be overridden. Useful for server cases.
  */
-const CACHE_VALUE_SOURCE__SEED = 2;
+const CACHED_PAYLOAD_SOURCE__SEED = 2;
 /**
  * Fetched from a remote source. Generally up-to-date.
  */
-const CACHE_VALUE_SOURCE__REMOTE = 3;
+const CACHED_PAYLOAD_SOURCE__REMOTE = 3;
 /**
  * Specified by the host app, and may not be overridden. Useful for testing.
  */
-const CACHE_VALUE_SOURCE__OVERRIDE = 4;
-
-type CacheValueSource =
-  | typeof CACHE_VALUE_SOURCE__NONE
-  | typeof CACHE_VALUE_SOURCE__BACKUP
-  | typeof CACHE_VALUE_SOURCE__SEED
-  | typeof CACHE_VALUE_SOURCE__REMOTE
-  | typeof CACHE_VALUE_SOURCE__OVERRIDE;
-
-// These only apply for CACHE_VALUE_SOURCE__REMOTE
-const CACHE_VALUE_FRESHNESS__NONE = 0;
-const CACHE_VALUE_FRESHNESS__STALE = 1;
-const CACHE_VALUE_FRESHNESS__FRESH = 2;
-
-type CacheValueFreshness =
-  | typeof CACHE_VALUE_FRESHNESS__NONE
-  | typeof CACHE_VALUE_FRESHNESS__STALE
-  | typeof CACHE_VALUE_FRESHNESS__FRESH;
+const CACHED_PAYLOAD_SOURCE__OVERRIDE = 4;
 
 /**
- * Tracks status and freshness of a single config file.
+ * We'll use this to pre-initialize arrays for tracking value/status/etc for each source
  */
-type CacheEntry<FetchParamsType, ValueType> = {
-  backupPromise: Promise<ValueType> | null;
-  remotePromise: Promise<ValueType> | null;
+const numPayloadSources = CACHED_PAYLOAD_SOURCE__OVERRIDE + 1;
+
+type CachedPayloadSource =
+  | typeof CACHED_PAYLOAD_SOURCE__NONE
+  | typeof CACHED_PAYLOAD_SOURCE__BACKUP
+  | typeof CACHED_PAYLOAD_SOURCE__SEED
+  | typeof CACHED_PAYLOAD_SOURCE__REMOTE
+  | typeof CACHED_PAYLOAD_SOURCE__OVERRIDE;
+
+// These only apply for CACHED_PAYLOAD_SOURCE__REMOTE
+const CACHED_PAYLOAD_FRESHNESS__NONE = 0;
+const CACHED_PAYLOAD_FRESHNESS__STALE = 1;
+const CACHED_PAYLOAD_FRESHNESS__FRESH = 2;
+
+type CachedPayloadFreshness =
+  | typeof CACHED_PAYLOAD_FRESHNESS__NONE
+  | typeof CACHED_PAYLOAD_FRESHNESS__STALE
+  | typeof CACHED_PAYLOAD_FRESHNESS__FRESH;
+
+/**
+ * Tracks status and freshness of a single payload, potentially spanning multiple sources
+ */
+type CacheStateEntry<FetchParamsType, ValueType> = {
+  promises: Array<Promise<ValueType> | null>;
+  values: Array<ValueType | null>;
+  updateTimes: Array<ReturnType<typeof Date.now> | 0>;
   // @TODO: Track errors: result, retryCount, timing
   // @TODO: Events and external observers: subscribe, unsubscribe
   fetchParams: FetchParamsType;
   remoteUrl: URL;
-} & (
-  | {
-      valueSource: typeof CACHE_VALUE_SOURCE__NONE;
-      valueFreshness: typeof CACHE_VALUE_FRESHNESS__NONE;
-      value: null;
-      lastUpdatedAt: 0;
-    }
-  | {
-      valueSource: Exclude<CacheValueSource, typeof CACHE_VALUE_SOURCE__NONE>;
-      freshnessStatus: CacheValueFreshness;
-      value: ValueType;
-      lastUpdatedAt: number;
-    }
-);
+  bestSource: CachedPayloadSource;
+};
 
 type FetchParamsToURLConverter<FetchParamsType> = (
   fetchParams: FetchParamsType,
@@ -84,7 +81,7 @@ type FetchParamsToURLConverter<FetchParamsType> = (
  * A collection of status & freshness information for all config files.
  */
 interface CacheStateContainer<FetchParamsType, ValueType> {
-  _state: Record<string, CacheEntry<FetchParamsType, ValueType>>;
+  _state: Record<string, CacheStateEntry<FetchParamsType, ValueType>>;
   debugLabel: string;
   baseUrl: URL | string;
   convertFetchParamsToUrl: FetchParamsToURLConverter<FetchParamsType>;
@@ -95,7 +92,10 @@ const initializeCacheStateContainer = <FetchParamsType, ValueType>(
   {
     baseUrl,
     convertFetchParamsToUrl,
-  }: { baseUrl: URL | string; convertFetchParamsToUrl: FetchParamsToURLConverter<FetchParamsType> },
+  }: {
+    baseUrl: URL | string;
+    convertFetchParamsToUrl: FetchParamsToURLConverter<FetchParamsType>;
+  },
 ): CacheStateContainer<FetchParamsType, ValueType> => {
   return {
     _state: Object.create(null),
@@ -105,84 +105,99 @@ const initializeCacheStateContainer = <FetchParamsType, ValueType>(
   };
 };
 
-const _getCacheKeyForParams = <FetchParamsType, ValueType>(
-  _cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
+const internalCacheState_getURLForParams = <FetchParamsType, ValueType>(
+  cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
   fetchParams: FetchParamsType,
-): string => {
-  return hashKey([fetchParams]);
+): URL => {
+  return cacheStateContainer.convertFetchParamsToUrl(fetchParams, cacheStateContainer.baseUrl);
 };
 
-const _initializeCacheEntryForParams = <FetchParamsType, ValueType>(
-  cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
+const internalCacheState_initializeCacheEntryForParams = <FetchParamsType, ValueType>(
+  _cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
   fetchParams: FetchParamsType,
-): CacheEntry<FetchParamsType, ValueType> => ({
-  backupPromise: null,
-  remotePromise: null,
+  remoteUrl: URL,
+): CacheStateEntry<FetchParamsType, ValueType> => ({
+  promises: Array(numPayloadSources).fill(null),
+  values: Array(numPayloadSources).fill(null),
+  updateTimes: Array(numPayloadSources).fill(0),
   // @TODO: Track errors: result, retryCount, timing
   fetchParams,
-  remoteUrl: cacheStateContainer.convertFetchParamsToUrl(fetchParams, cacheStateContainer.baseUrl),
-  valueSource: CACHE_VALUE_SOURCE__NONE,
-  valueFreshness: CACHE_VALUE_FRESHNESS__NONE,
-  value: null,
-  lastUpdatedAt: 0,
+  remoteUrl,
+  bestSource: CACHED_PAYLOAD_SOURCE__NONE,
 });
 
-const getCacheEntry = <FetchParamsType, ValueType>(
+const internalCacheState_getCacheEntry = <FetchParamsType, ValueType>(
   cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
   fetchParams: FetchParamsType,
-): CacheEntry<FetchParamsType, ValueType> => {
-  const cacheKey = _getCacheKeyForParams(cacheStateContainer, fetchParams);
+): CacheStateEntry<FetchParamsType, ValueType> => {
+  const remoteUrl = internalCacheState_getURLForParams(cacheStateContainer, fetchParams);
+  const cacheKey = remoteUrl.toString();
+
   if (!cacheStateContainer._state[cacheKey]) {
-    cacheStateContainer._state[cacheKey] = _initializeCacheEntryForParams(
+    cacheStateContainer._state[cacheKey] = internalCacheState_initializeCacheEntryForParams(
       cacheStateContainer,
       fetchParams,
+      remoteUrl,
     );
   }
   return cacheStateContainer._state[cacheKey];
 };
 
-const setCacheValue = <FetchParamsType, ValueType>(
+const internalCacheState_setPayloadValue = <FetchParamsType, ValueType>(
   cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
   fetchParams: FetchParamsType,
   newValue: ValueType,
-  source: CacheValueSource,
-): CacheEntry<FetchParamsType, ValueType> => {
-  const cacheEntry = getCacheEntry(cacheStateContainer, fetchParams);
+  source: CachedPayloadSource,
+): CacheStateEntry<FetchParamsType, ValueType> => {
+  const cacheEntry = internalCacheState_getCacheEntry(cacheStateContainer, fetchParams);
+  const { promises, values, updateTimes, bestSource } = cacheEntry;
 
-  // Only set a new value if it's a higher-or-equal priority source than we already have
-  if (source >= cacheEntry.valueSource) {
-    // MUTATION
-    Object.assign(cacheEntry, {
-      valueSource: source,
-      freshnessStatus:
-        source === CACHE_VALUE_SOURCE__REMOTE
-          ? CACHE_VALUE_FRESHNESS__FRESH
-          : CACHE_VALUE_FRESHNESS__STALE,
-      value: newValue,
-      lastUpdatedAt: Date.now(),
-    });
-  } else if (process.env.NODE_ENV !== 'production') {
-    console.warn(
-      'Ignoring new Beverage config value because we already have a higher-priority source: ',
-      newValue,
-      cacheEntry,
-    );
+  // Clear promises, set value
+  promises[source] = null;
+  values[source] = newValue;
+  updateTimes[source] = Date.now();
+
+  if (source > bestSource) {
+    cacheEntry.bestSource = source;
   }
 
   return cacheEntry;
 };
 
-export type { CacheValueSource, CacheValueFreshness, CacheEntry, CacheStateContainer };
+const internalCacheState_setPayloadPromise = <FetchParamsType, ValueType>(
+  cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
+  fetchParams: FetchParamsType,
+  newPromise: Promise<ValueType>,
+  source: CachedPayloadSource,
+): CacheStateEntry<FetchParamsType, ValueType> => {
+  const cacheEntry = internalCacheState_getCacheEntry(cacheStateContainer, fetchParams);
+  const { promises } = cacheEntry;
+
+  // Track promise and queue up a value-assignment once it finishes
+  promises[source] = newPromise;
+
+  newPromise.then((newValue) => {
+    if (newPromise === promises[source]) {
+      internalCacheState_setPayloadValue(cacheStateContainer, fetchParams, newValue, source);
+    }
+    // Else: this promise was replaced while we were waiting, so don't do anything
+  });
+
+  return cacheEntry;
+};
+
+export type { CachedPayloadSource, CachedPayloadFreshness, CacheStateEntry, CacheStateContainer };
 export {
-  CACHE_VALUE_SOURCE__NONE,
-  CACHE_VALUE_SOURCE__BACKUP,
-  CACHE_VALUE_SOURCE__SEED,
-  CACHE_VALUE_SOURCE__REMOTE,
-  CACHE_VALUE_SOURCE__OVERRIDE,
-  CACHE_VALUE_FRESHNESS__NONE,
-  CACHE_VALUE_FRESHNESS__STALE,
-  CACHE_VALUE_FRESHNESS__FRESH,
+  CACHED_PAYLOAD_SOURCE__NONE,
+  CACHED_PAYLOAD_SOURCE__BACKUP,
+  CACHED_PAYLOAD_SOURCE__SEED,
+  CACHED_PAYLOAD_SOURCE__REMOTE,
+  CACHED_PAYLOAD_SOURCE__OVERRIDE,
+  CACHED_PAYLOAD_FRESHNESS__NONE,
+  CACHED_PAYLOAD_FRESHNESS__STALE,
+  CACHED_PAYLOAD_FRESHNESS__FRESH,
   initializeCacheStateContainer,
-  getCacheEntry,
-  setCacheValue,
+  internalCacheState_getCacheEntry,
+  internalCacheState_setPayloadValue,
+  internalCacheState_setPayloadPromise,
 };
