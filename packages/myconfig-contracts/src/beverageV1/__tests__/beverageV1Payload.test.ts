@@ -27,18 +27,18 @@ expectAssignable<ALL_HISTORICAL__BeverageV1PayloadTypes>(beverageV1PayloadExampl
 expectAssignable<ReadonlyArray<ALL_HISTORICAL__BeverageV1PayloadTypes>>(beverageV1PayloadExamples);
 
 // Finally, validate all examples against the schema
-describe('BeverageV1 Configs', () => {
+describe('BeverageV1 Payloads', () => {
   test.each(
     beverageV1PayloadExamples,
-  )('Example values all pass current schema (#%#)', (exampleConfigs) => {
-    const result = beverageV1PayloadSchema.safeParse(exampleConfigs);
+  )('Example values all pass current schema (#%#)', (examplePayload) => {
+    const result = beverageV1PayloadSchema.safeParse(examplePayload);
     expect(result.error).toBeFalsy();
   });
 
   test.each(
     ALL_HISTORICAL__BeverageV1PayloadExamples,
-  )('Historical values all pass current schema (%#: $milestoneName)', (exampleConfigs) => {
-    const result = beverageV1PayloadSchema.safeParse(exampleConfigs);
+  )('Historical values all pass current schema (%#: $milestoneName)', (examplePayload) => {
+    const result = beverageV1PayloadSchema.safeParse(examplePayload);
     expect(result.error).toBeFalsy();
   });
 });

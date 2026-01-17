@@ -16,6 +16,7 @@ describe('Cache State Container', () => {
         debugLabel: 'unit tests',
         baseUrl: 'https://example.com',
         convertFetchParamsToUrl: alwaysReturnExampleUrl,
+        onGlobalChange: [],
       });
     });
   });
@@ -30,12 +31,13 @@ describe('Cache State Container', () => {
       const cacheEntry = internalCacheState_getCacheEntry(cacheStateContainer, 'example param');
 
       expect(cacheEntry).toMatchObject({
-        promises: Array(5).fill(null),
-        values: Array(5).fill(null),
+        promises: Array(5),
+        values: Array(5),
         updateTimes: Array(5).fill(0),
         fetchParams: 'example param',
         remoteUrl: new URL('https://example.com/unit-test-example.json'),
         bestSource: 0,
+        onChange: [],
       });
     });
   });

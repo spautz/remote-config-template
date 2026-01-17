@@ -8,13 +8,13 @@ import { beverageV1EntryExamples, beverageV1EntrySchema } from './beverageV1Nest
  */
 
 /**
- * This tracks the shape of a full beverageV1 config.
+ * This tracks the shape of a full beverageV1 payload.
  * In a real app you'd probably get this stuff from a backend instead of a json config:
  * this is just an example.
  *
- * Schemas should be non-strict (z.object, not z.strictObject) to accommodate future values.
+ * Schemas should be non-strict (z.looseObject(), not z.strictObject()) to accommodate future values.
  */
-const beverageV1PayloadSchema = z.object({
+const beverageV1PayloadSchema = z.looseObject({
   lastUpdatedAt: z.string(),
   beverages: z.array(beverageV1EntrySchema),
 });
@@ -22,7 +22,7 @@ const beverageV1PayloadSchema = z.object({
 type BeverageV1Payload = z.infer<typeof beverageV1PayloadSchema>;
 
 /**
- * Some examples of full beverageV1 configs, used for testing.
+ * Some examples of full beverageV1 payloads, used for testing.
  */
 const beverageV1PayloadExamples = [
   {
@@ -39,5 +39,19 @@ const beverageV1PayloadExamples = [
   },
 ] as const;
 
+const isValidBeverageV1Payload = (rawData: unknown): rawData is BeverageV1Payload => {
+  const validation = beverageV1PayloadSchema.safeParse(rawData);
+  return validation.success;
+};
+
+const parseBeverageV1Payload = (rawData: unknown): BeverageV1Payload => {
+  return beverageV1PayloadSchema.parse(rawData);
+};
+
 export type { BeverageV1Payload };
-export { beverageV1PayloadSchema, beverageV1PayloadExamples };
+export {
+  beverageV1PayloadSchema,
+  beverageV1PayloadExamples,
+  isValidBeverageV1Payload,
+  parseBeverageV1Payload,
+};

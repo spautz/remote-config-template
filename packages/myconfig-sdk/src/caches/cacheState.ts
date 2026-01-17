@@ -62,20 +62,16 @@ type CachedPayloadFreshness =
  * Tracks status and freshness of a single payload, potentially spanning multiple sources
  */
 type CacheStateEntry<FetchParamsType, ValueType> = {
-  promises: Array<Promise<ValueType> | null>;
-  values: Array<ValueType | null>;
+  promises: Array<Promise<ValueType> | undefined>;
+  values: Array<ValueType | undefined>;
   updateTimes: Array<ReturnType<typeof Date.now> | 0>;
   // @TODO: Track errors: result, retryCount, timing
   // @TODO: Events and external observers: subscribe, unsubscribe
   fetchParams: FetchParamsType;
   remoteUrl: URL;
   bestSource: CachedPayloadSource;
+  onChange: Array<(newValue: ValueType, oldValue: ValueType | undefined) => void>;
 };
-
-type FetchParamsToURLConverter<FetchParamsType> = (
-  fetchParams: FetchParamsType,
-  baseUrl: string | URL,
-) => URL;
 
 /**
  * A collection of status & freshness information for all config files.
@@ -84,7 +80,16 @@ interface CacheStateContainer<FetchParamsType, ValueType> {
   _state: Record<string, CacheStateEntry<FetchParamsType, ValueType>>;
   debugLabel: string;
   baseUrl: URL | string;
-  convertFetchParamsToUrl: FetchParamsToURLConverter<FetchParamsType>;
+  convertFetchParamsToUrl: (fetchParams: FetchParamsType, baseUrl: string | URL) => URL;
+  validatePayload: ((rawData: unknown) => boolean) | undefined;
+  parsePayload: ((rawData: unknown) => ValueType) | undefined;
+  onGlobalChange: Array<
+    (
+      cacheEntry: CacheStateEntry<FetchParamsType, ValueType>,
+      newValue: ValueType,
+      oldValue: ValueType | undefined,
+    ) => void
+  >;
 }
 
 const initializeCacheStateContainer = <FetchParamsType, ValueType>(
@@ -92,16 +97,26 @@ const initializeCacheStateContainer = <FetchParamsType, ValueType>(
   {
     baseUrl,
     convertFetchParamsToUrl,
+    validatePayload,
+    parsePayload,
   }: {
-    baseUrl: URL | string;
-    convertFetchParamsToUrl: FetchParamsToURLConverter<FetchParamsType>;
+    baseUrl: CacheStateContainer<FetchParamsType, ValueType>['baseUrl'];
+    convertFetchParamsToUrl: CacheStateContainer<
+      FetchParamsType,
+      ValueType
+    >['convertFetchParamsToUrl'];
+    validatePayload?: CacheStateContainer<FetchParamsType, ValueType>['validatePayload'];
+    parsePayload?: CacheStateContainer<FetchParamsType, ValueType>['parsePayload'];
   },
 ): CacheStateContainer<FetchParamsType, ValueType> => {
   return {
     _state: Object.create(null),
+    onGlobalChange: [],
     debugLabel,
     baseUrl,
     convertFetchParamsToUrl,
+    validatePayload,
+    parsePayload,
   };
 };
 
@@ -117,13 +132,14 @@ const internalCacheState_initializeCacheEntryForParams = <FetchParamsType, Value
   fetchParams: FetchParamsType,
   remoteUrl: URL,
 ): CacheStateEntry<FetchParamsType, ValueType> => ({
-  promises: Array(numPayloadSources).fill(null),
-  values: Array(numPayloadSources).fill(null),
+  promises: Array(numPayloadSources),
+  values: Array(numPayloadSources),
   updateTimes: Array(numPayloadSources).fill(0),
   // @TODO: Track errors: result, retryCount, timing
   fetchParams,
   remoteUrl,
   bestSource: CACHED_PAYLOAD_SOURCE__NONE,
+  onChange: [],
 });
 
 const internalCacheState_getCacheEntry = <FetchParamsType, ValueType>(
@@ -143,6 +159,14 @@ const internalCacheState_getCacheEntry = <FetchParamsType, ValueType>(
   return cacheStateContainer._state[cacheKey];
 };
 
+const internalCacheState_getPayload = <FetchParamsType, ValueType>(
+  cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
+  fetchParams: FetchParamsType,
+): ValueType | undefined => {
+  const cacheEntry = internalCacheState_getCacheEntry(cacheStateContainer, fetchParams);
+  return cacheEntry.values[cacheEntry.bestSource];
+};
+
 const internalCacheState_setPayloadValue = <FetchParamsType, ValueType>(
   cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
   fetchParams: FetchParamsType,
@@ -150,11 +174,23 @@ const internalCacheState_setPayloadValue = <FetchParamsType, ValueType>(
   source: CachedPayloadSource,
 ): CacheStateEntry<FetchParamsType, ValueType> => {
   const cacheEntry = internalCacheState_getCacheEntry(cacheStateContainer, fetchParams);
+  const { debugLabel, validatePayload, parsePayload } = cacheStateContainer;
   const { promises, values, updateTimes, bestSource } = cacheEntry;
 
+  // @TODO: Try/catch for specific cases, callback instead of inline error
+
+  if (validatePayload) {
+    const isValid = validatePayload(newValue);
+    if (!isValid) {
+      console.warn(`Invalid config payload for ${debugLabel}`, newValue);
+    }
+  }
+
+  const parsedValue = parsePayload ? parsePayload(newValue) : newValue;
+
   // Clear promises, set value
-  promises[source] = null;
-  values[source] = newValue;
+  promises[source] = undefined;
+  values[source] = parsedValue;
   updateTimes[source] = Date.now();
 
   if (source > bestSource) {
@@ -186,6 +222,70 @@ const internalCacheState_setPayloadPromise = <FetchParamsType, ValueType>(
   return cacheEntry;
 };
 
+const internalCacheState_addChangeListener = <FetchParamsType, ValueType>(
+  cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
+  fetchParams: FetchParamsType,
+  callbackFn: (newValue: ValueType, oldValue: ValueType | undefined) => void,
+): CacheStateEntry<FetchParamsType, ValueType> => {
+  const cacheEntry = internalCacheState_getCacheEntry(cacheStateContainer, fetchParams);
+  const { onChange } = cacheEntry;
+  if (!onChange.includes(callbackFn)) {
+    onChange.push(callbackFn);
+  }
+
+  return cacheEntry;
+};
+
+const internalCacheState_removeChangeListener = <FetchParamsType, ValueType>(
+  cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
+  fetchParams: FetchParamsType,
+  callbackFn: (newValue: ValueType, oldValue: ValueType | undefined) => void,
+): CacheStateEntry<FetchParamsType, ValueType> => {
+  const cacheEntry = internalCacheState_getCacheEntry(cacheStateContainer, fetchParams);
+  const { onChange } = cacheEntry;
+
+  const index = onChange.indexOf(callbackFn);
+  if (index !== -1) {
+    onChange.splice(onChange.indexOf(callbackFn), 1);
+  }
+
+  return cacheEntry;
+};
+
+const internalCacheState_addGlobalChangeListener = <FetchParamsType, ValueType>(
+  cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
+  callbackFn: (
+    cacheEntry: CacheStateEntry<FetchParamsType, ValueType>,
+    newValue: ValueType,
+    oldValue: ValueType | undefined,
+  ) => void,
+): CacheStateContainer<FetchParamsType, ValueType> => {
+  const { onGlobalChange } = cacheStateContainer;
+  if (!onGlobalChange.includes(callbackFn)) {
+    onGlobalChange.push(callbackFn);
+  }
+
+  return cacheStateContainer;
+};
+
+const internalCacheState_removeGlobalChangeListener = <FetchParamsType, ValueType>(
+  cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
+  callbackFn: (
+    cacheEntry: CacheStateEntry<FetchParamsType, ValueType>,
+    newValue: ValueType,
+    oldValue: ValueType | undefined,
+  ) => void,
+): CacheStateContainer<FetchParamsType, ValueType> => {
+  const { onGlobalChange } = cacheStateContainer;
+
+  const index = onGlobalChange.indexOf(callbackFn);
+  if (index !== -1) {
+    onGlobalChange.splice(onGlobalChange.indexOf(callbackFn), 1);
+  }
+
+  return cacheStateContainer;
+};
+
 export type { CachedPayloadSource, CachedPayloadFreshness, CacheStateEntry, CacheStateContainer };
 export {
   CACHED_PAYLOAD_SOURCE__NONE,
@@ -198,6 +298,11 @@ export {
   CACHED_PAYLOAD_FRESHNESS__FRESH,
   initializeCacheStateContainer,
   internalCacheState_getCacheEntry,
+  internalCacheState_getPayload,
   internalCacheState_setPayloadValue,
   internalCacheState_setPayloadPromise,
+  internalCacheState_addChangeListener,
+  internalCacheState_removeChangeListener,
+  internalCacheState_addGlobalChangeListener,
+  internalCacheState_removeGlobalChangeListener,
 };

@@ -1,6 +1,6 @@
 import {
   type BeverageV1Payload,
-  initializeV1BeverageCache,
+  initializeBeverageCache,
   internal_getV1BeverageCacheEntry,
   internal_getV1BeverageCacheStateContainer,
   internal_setV1BeveragePayload,
@@ -11,7 +11,7 @@ import { useState } from 'react';
 import type { JSX } from 'react/jsx-runtime';
 
 function App(): JSX.Element {
-  initializeV1BeverageCache('https://localhost:3000/');
+  initializeBeverageCache('https://localhost:3000/');
   const [beverageCacheEntry, setBeverageCacheEntry] = useState(
     internal_getV1BeverageCacheEntry({}),
   );
@@ -27,7 +27,7 @@ function App(): JSX.Element {
       <button
         type="button"
         onClick={() => {
-          // @FIXME: Hardcoded 2 === CACHE_VALUE_SOURCE__SEED
+          // @FIXME: Hardcoded 2 === CACHED_PAYLOAD_SOURCE__SEED
           internal_setV1BeveragePayload({}, SEED_VALUE as BeverageV1Payload, 2);
         }}
       >

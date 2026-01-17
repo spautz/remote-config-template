@@ -96,7 +96,7 @@
     },
     {
       "path": "./dist/esm/index.js",
-      "import": "{ initializeV1BeverageCache }",
+      "import": "{ initializeBeverageCache }",
       "limit": "75 KB"
     }
   ]

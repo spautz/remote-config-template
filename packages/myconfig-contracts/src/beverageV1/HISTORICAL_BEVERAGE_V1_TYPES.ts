@@ -137,7 +137,7 @@ const HISTORICAL__BeverageV1Entry__ORIGINAL = {
 const ALL_HISTORICAL__BeverageV1EntryMilestones = [HISTORICAL__BeverageV1Entry__ORIGINAL] as const;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// Full BeverageV1 Configs
+// Full BeverageV1 Payloads
 //
 // Do not use Zod or any other external tools here: you must manually copy over the typings when they change.
 // (This is intentionally painful: you should generally never need to change things once set up.)
@@ -171,7 +171,7 @@ const HISTORICAL__BeverageV1Payload__ORIGINAL = {
 } as const;
 
 /**
- * A list of all historical milestones for full BeverageV1 configs.
+ * A list of all historical milestones for full BeverageV1 payloads.
  * Usually there'll only be one, which we never need to change.
  */
 const ALL_HISTORICAL__BeverageV1PayloadMilestones = [

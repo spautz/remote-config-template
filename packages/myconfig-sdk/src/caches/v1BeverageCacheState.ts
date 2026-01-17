@@ -1,96 +1,131 @@
 import {
   type BeverageV1FetchParams,
   type BeverageV1Payload,
-  beverageV1FetchParamSchema,
-  beverageV1PayloadSchema,
   convertBeverageV1FetchParamsToURLPath,
+  isValidBeverageV1Payload,
+  parseBeverageV1Payload,
 } from '@spautz/myconfig-contracts';
-
+import { isPromise } from '../utils.js';
 import {
   type CachedPayloadSource,
   type CacheStateContainer,
   type CacheStateEntry,
   initializeCacheStateContainer,
+  internalCacheState_addChangeListener,
+  internalCacheState_addGlobalChangeListener,
   internalCacheState_getCacheEntry,
+  internalCacheState_getPayload,
+  internalCacheState_removeChangeListener,
+  internalCacheState_removeGlobalChangeListener,
+  internalCacheState_setPayloadPromise,
   internalCacheState_setPayloadValue,
 } from './cacheState.ts';
 
-let cacheStateContainer: CacheStateContainer<BeverageV1FetchParams, BeverageV1Payload>;
+///////////////////////////////////////////////////////////////////////////////
+// State Container Setup
 
-/**
- * Converts fetchParams into a URL path where the Beverage config is located.
- */
-const getRemoteUrlForBeverageConfig = (
-  fetchParams: BeverageV1FetchParams,
-  baseUrl: string | URL,
-): URL => {
-  if (!cacheStateContainer || !baseUrl) {
-    throw new Error(
-      'The Beverage cache must be initialized, and a baseUrl set, before it can be used.',
-    );
-  }
-  return new URL(convertBeverageV1FetchParamsToURLPath(fetchParams), baseUrl);
-};
+let v1BeverageCacheStateContainer: CacheStateContainer<BeverageV1FetchParams, BeverageV1Payload>;
 
 /**
  * Initializes the Beverage cache with a base URL. This is required before you do anything else.
  */
 const internal_initializeV1BeverageCache = (baseUrl: string | URL): void => {
-  cacheStateContainer = initializeCacheStateContainer<BeverageV1FetchParams, BeverageV1Payload>(
-    'v1Beverage',
-    {
-      baseUrl,
-      convertFetchParamsToUrl: getRemoteUrlForBeverageConfig,
-    },
-  );
+  v1BeverageCacheStateContainer = initializeCacheStateContainer<
+    BeverageV1FetchParams,
+    BeverageV1Payload
+  >('v1Beverage', {
+    baseUrl,
+    convertFetchParamsToUrl: (fetchParams) =>
+      new URL(convertBeverageV1FetchParamsToURLPath(fetchParams), baseUrl),
+    validatePayload: isValidBeverageV1Payload,
+    parsePayload: parseBeverageV1Payload,
+  });
 };
 
 /**
- * Returns the internal cache entry for a given Beverage config.
+ * Returns the full internal cache state container. Do not use this unless you know what you're doing.
  */
-const internal_getV1BeverageCacheEntry = (
-  fetchParams: BeverageV1FetchParams,
-): CacheStateEntry<BeverageV1FetchParams, BeverageV1Payload> => {
-  const validation = beverageV1FetchParamSchema.safeParse(fetchParams);
-  if (validation.error) {
-    console.error('Invalid fetchParams for Beverage config: ', validation, fetchParams);
-    throw new Error(`Invalid fetchParams for Beverage config: ${validation.error}`);
+const internal_getV1BeverageCacheStateContainer = (): CacheStateContainer<
+  BeverageV1FetchParams,
+  BeverageV1Payload
+> => {
+  if (!v1BeverageCacheStateContainer) {
+    throw new Error('The Beverage cache must be initialized before it can be used.');
   }
-
-  return internalCacheState_getCacheEntry(cacheStateContainer, fetchParams);
+  return v1BeverageCacheStateContainer;
 };
+
+/**
+ * Most of the utilities below are thin wrappers around base cacheState functions:
+ * this util curries / partials in the v1BeverageCacheStateContainer for them.
+ */
+const bindFunctionToCacheState = <ArgsType extends unknown[], ReturnType>(
+  fn: (
+    container: CacheStateContainer<BeverageV1FetchParams, BeverageV1Payload>,
+    ...args: ArgsType
+  ) => ReturnType,
+): ((...args: ArgsType) => ReturnType) => {
+  return (...args: ArgsType): ReturnType =>
+    fn(internal_getV1BeverageCacheStateContainer(), ...args);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// State Querying and Manipulation
+
+const internal_getV1BeverageCacheEntry = bindFunctionToCacheState(
+  internalCacheState_getCacheEntry<BeverageV1FetchParams, BeverageV1Payload>,
+);
+
+/**
+ * Returns the highest-priority-source payload we have
+ */
+const internal_getV1BeveragePayload = bindFunctionToCacheState(
+  internalCacheState_getPayload<BeverageV1FetchParams, BeverageV1Payload>,
+);
+
+const internal_setV1BeveragePayloadPromise = bindFunctionToCacheState(
+  internalCacheState_setPayloadPromise<BeverageV1FetchParams, BeverageV1Payload>,
+);
+
+const internal_setV1BeveragePayloadValue = bindFunctionToCacheState(
+  internalCacheState_setPayloadValue<BeverageV1FetchParams, BeverageV1Payload>,
+);
 
 /**
  * Populates the cache with the value provided, if it's valid.
  */
 const internal_setV1BeveragePayload = (
   fetchParams: BeverageV1FetchParams,
-  newValue: BeverageV1Payload,
+  newValue: BeverageV1Payload | Promise<BeverageV1Payload>,
   source: CachedPayloadSource,
 ): CacheStateEntry<BeverageV1FetchParams, BeverageV1Payload> => {
-  // Validate against the schema, but pass through the original value in case there's anything special about it
-  // @TODO: Manual promise support, put validation into stateContainer config
-  const validation = beverageV1PayloadSchema.safeParse(newValue);
-  if (validation.error) {
-    console.error('Invalid value for Beverage config: ', validation, newValue);
-    throw new Error(`Invalid value for Beverage config: ${validation.error}`);
+  if (isPromise(newValue)) {
+    return internal_setV1BeveragePayloadPromise(fetchParams, newValue, source);
   }
-
-  return internalCacheState_setPayloadValue(cacheStateContainer, fetchParams, newValue, source);
+  return internal_setV1BeveragePayloadValue(fetchParams, newValue, source);
 };
 
-/**
- * Returns the full internal cache state container. Do not use unless you know what you're doing.
- * This has an extra-long name to scare people away.
- */
-const internal_getV1BeverageCacheStateContainer = (): CacheStateContainer<
-  BeverageV1FetchParams,
-  BeverageV1Payload
-> => cacheStateContainer;
+const internal_addV1BeverageChangeListener = bindFunctionToCacheState(
+  internalCacheState_addChangeListener<BeverageV1FetchParams, BeverageV1Payload>,
+);
+const internal_removeV1BeverageChangeListener = bindFunctionToCacheState(
+  internalCacheState_removeChangeListener<BeverageV1FetchParams, BeverageV1Payload>,
+);
+const internal_addGlobalV1BeverageChangeListener = bindFunctionToCacheState(
+  internalCacheState_addGlobalChangeListener<BeverageV1FetchParams, BeverageV1Payload>,
+);
+const internal_removeGlobalV1BeverageChangeListener = bindFunctionToCacheState(
+  internalCacheState_removeGlobalChangeListener<BeverageV1FetchParams, BeverageV1Payload>,
+);
 
 export {
   internal_initializeV1BeverageCache,
-  internal_getV1BeverageCacheEntry,
-  internal_setV1BeveragePayload,
   internal_getV1BeverageCacheStateContainer,
+  internal_getV1BeverageCacheEntry,
+  internal_getV1BeveragePayload,
+  internal_setV1BeveragePayload,
+  internal_addV1BeverageChangeListener,
+  internal_removeV1BeverageChangeListener,
+  internal_addGlobalV1BeverageChangeListener,
+  internal_removeGlobalV1BeverageChangeListener,
 };

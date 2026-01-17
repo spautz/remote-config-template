@@ -5,11 +5,11 @@ import {
 } from '@spautz/myconfig-contracts';
 
 /**
- * Supplies a config file from the Values package under node_modules.
+ * Supplies a payload file from the Values package under node_modules.
  * This should always succeed in Node environments, and it can work as a fallback if an up-to-date
  * copy of the config file cannot be fetched from the remote source.
  */
-const internal_loadBackupConfigFromValuesPackage = async (
+const internal_loadBackupPayloadFromValuesPackage = async (
   filePath: string,
 ): Promise<BeverageV1Payload> => {
   // @TODO: Handle import errors
@@ -24,15 +24,15 @@ const internal_loadBackupConfigFromValuesPackage = async (
 };
 
 /**
- * Supplies a `v1Beverage` config file from the Values package under node_modules.
+ * Supplies a `v1Beverage` payload file from the Values package under node_modules.
  * This should always succeed in Node environments, and it can work as a fallback if an up-to-date
  * copy of the config file cannot be fetched from the remote source.
  */
-const loadV1BeverageBackupConfig = async (
+const loadV1BeverageBackupPayload = async (
   fetchParams: BeverageV1FetchParams,
 ): Promise<BeverageV1Payload> => {
   const filePath = convertBeverageV1FetchParamsToURLPath(fetchParams);
-  return internal_loadBackupConfigFromValuesPackage(filePath);
+  return internal_loadBackupPayloadFromValuesPackage(filePath);
 };
 
-export { internal_loadBackupConfigFromValuesPackage, loadV1BeverageBackupConfig };
+export { internal_loadBackupPayloadFromValuesPackage, loadV1BeverageBackupPayload };
