@@ -96,7 +96,7 @@
     },
     {
       "path": "./dist/esm/index.js",
-      "import": "{ beverageV1ConfigSchema }",
+      "import": "{ beverageV1PayloadSchema }",
       "limit": "75 KB"
     }
   ]

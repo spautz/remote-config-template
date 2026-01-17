@@ -1,9 +1,9 @@
 import {
-  type BeverageV1Config,
   type BeverageV1FetchParams,
-  beverageV1ConfigSchema,
+  type BeverageV1Payload,
   beverageV1FetchParamSchema,
-  convertFetchParamsToURLPath,
+  beverageV1PayloadSchema,
+  convertBeverageV1FetchParamsToURLPath,
 } from '@spautz/myconfig-contracts';
 
 import {
@@ -15,7 +15,7 @@ import {
   setCacheValue,
 } from './cacheState.ts';
 
-let cacheStateContainer: CacheStateContainer<BeverageV1FetchParams, BeverageV1Config>;
+let cacheStateContainer: CacheStateContainer<BeverageV1FetchParams, BeverageV1Payload>;
 
 /**
  * Converts fetchParams into a URL path where the Beverage config is located.
@@ -29,14 +29,14 @@ const getRemoteUrlForBeverageConfig = (
       'The Beverage cache must be initialized, and a baseUrl set, before it can be used.',
     );
   }
-  return new URL(convertFetchParamsToURLPath(fetchParams), baseUrl);
+  return new URL(convertBeverageV1FetchParamsToURLPath(fetchParams), baseUrl);
 };
 
 /**
  * Initializes the Beverage cache with a base URL. This is required before you do anything else.
  */
 const initializeV1BeverageCache = (baseUrl: string | URL): void => {
-  cacheStateContainer = initializeCacheStateContainer<BeverageV1FetchParams, BeverageV1Config>(
+  cacheStateContainer = initializeCacheStateContainer<BeverageV1FetchParams, BeverageV1Payload>(
     // @TODO: Full options object, store baseUrl here
     'v1Beverage',
     {
@@ -51,7 +51,7 @@ const initializeV1BeverageCache = (baseUrl: string | URL): void => {
  */
 const internal_getV1BeverageCacheEntry = (
   fetchParams: BeverageV1FetchParams,
-): CacheEntry<BeverageV1FetchParams, BeverageV1Config> => {
+): CacheEntry<BeverageV1FetchParams, BeverageV1Payload> => {
   const validation = beverageV1FetchParamSchema.safeParse(fetchParams);
   if (validation.error) {
     console.error('Invalid fetchParams for Beverage config: ', validation, fetchParams);
@@ -64,13 +64,13 @@ const internal_getV1BeverageCacheEntry = (
 /**
  * Populates the cache with the value provided, if it's valid.
  */
-const internal_setV1BeverageConfig = (
+const internal_setV1BeveragePayload = (
   fetchParams: BeverageV1FetchParams,
-  newValue: BeverageV1Config,
+  newValue: BeverageV1Payload,
   source: CacheValueSource,
-): CacheEntry<BeverageV1FetchParams, BeverageV1Config> => {
+): CacheEntry<BeverageV1FetchParams, BeverageV1Payload> => {
   // Validate against the schema, but pass through the original value in case there's anything special about it
-  const validation = beverageV1ConfigSchema.safeParse(newValue);
+  const validation = beverageV1PayloadSchema.safeParse(newValue);
   if (validation.error) {
     console.error('Invalid fetchParams for Beverage config: ', validation, newValue);
     throw new Error(`Invalid value for Beverage config: ${validation.error}`);
@@ -85,12 +85,12 @@ const internal_setV1BeverageConfig = (
  */
 const internal_getV1BeverageCacheStateContainer = (): CacheStateContainer<
   BeverageV1FetchParams,
-  BeverageV1Config
+  BeverageV1Payload
 > => cacheStateContainer;
 
 export {
   initializeV1BeverageCache,
   internal_getV1BeverageCacheEntry,
-  internal_setV1BeverageConfig,
+  internal_setV1BeveragePayload,
   internal_getV1BeverageCacheStateContainer,
 };

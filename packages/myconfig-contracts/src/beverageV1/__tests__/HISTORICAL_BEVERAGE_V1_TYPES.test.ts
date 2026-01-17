@@ -1,15 +1,15 @@
 import { describe, expect, test } from 'vitest';
 
 import {
-  ALL_HISTORICAL__BeverageV1ConfigExamples,
-  ALL_HISTORICAL__BeverageV1ConfigMilestones,
-  type ALL_HISTORICAL__BeverageV1ConfigTypes,
   ALL_HISTORICAL__BeverageV1EntryExamples,
   ALL_HISTORICAL__BeverageV1EntryMilestones,
   type ALL_HISTORICAL__BeverageV1EntryTypes,
   ALL_HISTORICAL__BeverageV1FetchParamExamples,
   ALL_HISTORICAL__BeverageV1FetchParamMilestones,
   type ALL_HISTORICAL__BeverageV1FetchParamTypes,
+  ALL_HISTORICAL__BeverageV1PayloadExamples,
+  ALL_HISTORICAL__BeverageV1PayloadMilestones,
+  type ALL_HISTORICAL__BeverageV1PayloadTypes,
 } from '../HISTORICAL_BEVERAGE_V1_TYPES.js';
 import { expectAssignable } from './testUtils.js';
 
@@ -23,8 +23,8 @@ expectAssignable<Array<ALL_HISTORICAL__BeverageV1EntryTypes>>(
   ALL_HISTORICAL__BeverageV1EntryExamples,
 );
 
-expectAssignable<Array<ALL_HISTORICAL__BeverageV1ConfigTypes>>(
-  ALL_HISTORICAL__BeverageV1ConfigExamples,
+expectAssignable<Array<ALL_HISTORICAL__BeverageV1PayloadTypes>>(
+  ALL_HISTORICAL__BeverageV1PayloadExamples,
 );
 
 // Ensure that those historical examples include all milestones
@@ -47,12 +47,12 @@ describe('HISTORICAL_BEVERAGE_V1_TYPES', () => {
       ALL_HISTORICAL__BeverageV1EntryExamples.length,
     );
   });
-  test('ALL_HISTORICAL__BeverageV1ConfigExamples includes all milestones', () => {
-    const allExamplesFromAllMilestones = ALL_HISTORICAL__BeverageV1ConfigMilestones.flatMap(
+  test('ALL_HISTORICAL__BeverageV1PayloadExamples includes all milestones', () => {
+    const allExamplesFromAllMilestones = ALL_HISTORICAL__BeverageV1PayloadMilestones.flatMap(
       (milestone) => milestone.examples,
     );
     expect(allExamplesFromAllMilestones.length).toEqual(
-      ALL_HISTORICAL__BeverageV1ConfigExamples.length,
+      ALL_HISTORICAL__BeverageV1PayloadExamples.length,
     );
   });
 });

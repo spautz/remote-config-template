@@ -8,6 +8,7 @@
 function consoleLog(...args: Array<unknown>): void {
   console.log(...args);
 }
+
 /**
  * This doesn't do anything of value yet: just a thin wrapper around console.error
  */

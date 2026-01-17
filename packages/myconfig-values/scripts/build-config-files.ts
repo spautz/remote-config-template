@@ -4,7 +4,7 @@ import { glob, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { consoleError, consoleLog } from './_helpers/script-utils.ts';
+import { consoleError, consoleLog } from './helpers/script-utils.ts';
 
 const EXIT_CODE__NO_FILES_WRITTEN = 1;
 const EXIT_CODE__UNSUPPORTED_FILE_EXTENSION = 2;

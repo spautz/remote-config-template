@@ -1,4 +1,4 @@
-import { beverageV1ConfigSchema } from '@spautz/myconfig-contracts';
+import { beverageV1PayloadSchema } from '@spautz/myconfig-contracts';
 import { describe, expect, test } from 'vitest';
 
 import { CONFIG_FILES } from '../v1Beverage.js';
@@ -12,7 +12,7 @@ describe('Current v1Beverage config', () => {
   test.each(Object.keys(CONFIG_FILES))('%s has a valid schema', async (filename) => {
     const configValue = await CONFIG_FILES[filename as keyof typeof CONFIG_FILES];
 
-    const result = beverageV1ConfigSchema.safeParse(configValue);
+    const result = beverageV1PayloadSchema.safeParse(configValue);
     expect(result.error).toBeFalsy();
   });
 });

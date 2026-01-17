@@ -22,6 +22,8 @@ The `myconfig-sdk` provides utilities to fetch, validate, cache, monitor, and ba
 [![npm version](https://img.shields.io/npm/v/@spautz/myconfig-values.svg)](https://www.npmjs.com/package/@spautz/myconfig-values)
 [![readme](https://img.shields.io/badge/-readme-informational)](https://github.com/spautz/package-template/blob/main/packages/myconfig-values/README.md)
 [![build status](https://github.com/spautz/remote-config-template/workflows/CI/badge.svg)](https://github.com/spautz/remote-config-template/actions)
+[![test coverage](https://coveralls.io/repos/github/spautz/remote-config-template/badge.svg?branch=x-cov-myconfig-values)](https://coveralls.io/github/spautz/remote-config-template?branch=x-cov-myconfig-values)
+[![vulnerabilities](https://snyk.io/test/npm/@spautz/myconfig-values/badge.svg)](https://snyk.io/test/npm/@spautz/myconfig-values)
 
 The <span style="font-variant:small-caps;">json</span> values which the config-client accesses.
 

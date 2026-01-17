@@ -14,17 +14,17 @@ import { beverageV1EntryExamples, beverageV1EntrySchema } from './beverageV1Nest
  *
  * Schemas should be non-strict (z.object, not z.strictObject) to accommodate future values.
  */
-const beverageV1ConfigSchema = z.object({
+const beverageV1PayloadSchema = z.object({
   lastUpdatedAt: z.string(),
   beverages: z.array(beverageV1EntrySchema),
 });
 
-type BeverageV1Config = z.infer<typeof beverageV1ConfigSchema>;
+type BeverageV1Payload = z.infer<typeof beverageV1PayloadSchema>;
 
 /**
  * Some examples of full beverageV1 configs, used for testing.
  */
-const beverageV1ConfigExamples = [
+const beverageV1PayloadExamples = [
   {
     lastUpdatedAt: '2026-01-01T00:00:00.000Z',
     beverages: [],
@@ -39,5 +39,5 @@ const beverageV1ConfigExamples = [
   },
 ] as const;
 
-export type { BeverageV1Config };
-export { beverageV1ConfigSchema, beverageV1ConfigExamples };
+export type { BeverageV1Payload };
+export { beverageV1PayloadSchema, beverageV1PayloadExamples };

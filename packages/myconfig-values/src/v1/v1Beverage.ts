@@ -1,9 +1,9 @@
-import type { BeverageV1Config } from '@spautz/myconfig-contracts';
+import type { BeverageV1Payload } from '@spautz/myconfig-contracts';
 
 /**
  * Mock config. We use a promise to simulate any remote work that might be needed.
  */
-const allBeverages: Promise<BeverageV1Config> = Promise.resolve({
+const allBeverages: Promise<BeverageV1Payload> = Promise.resolve({
   lastUpdatedAt: new Date().toISOString(),
   beverages: [
     {

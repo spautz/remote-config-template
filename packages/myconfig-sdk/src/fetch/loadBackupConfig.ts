@@ -1,7 +1,7 @@
 import {
-  type BeverageV1Config,
   type BeverageV1FetchParams,
-  convertFetchParamsToURLPath,
+  type BeverageV1Payload,
+  convertBeverageV1FetchParamsToURLPath,
 } from '@spautz/myconfig-contracts';
 
 /**
@@ -11,16 +11,16 @@ import {
  */
 const internal_loadBackupConfigFromValuesPackage = async (
   filePath: string,
-): Promise<BeverageV1Config> => {
+): Promise<BeverageV1Payload> => {
   // @TODO: Handle import errors
 
   const module = await import(`@spautz/myconfig-values/configs/${filePath}`, {
     with: { type: 'json' },
   });
 
-  // @TODO: Validate against beverageV1ConfigSchema, with some further fallback
+  // @TODO: Validate against beverageV1PayloadSchema, with some further fallback
 
-  return module.default as BeverageV1Config;
+  return module.default as BeverageV1Payload;
 };
 
 /**
@@ -30,8 +30,8 @@ const internal_loadBackupConfigFromValuesPackage = async (
  */
 const loadV1BeverageBackupConfig = async (
   fetchParams: BeverageV1FetchParams,
-): Promise<BeverageV1Config> => {
-  const filePath = convertFetchParamsToURLPath(fetchParams);
+): Promise<BeverageV1Payload> => {
+  const filePath = convertBeverageV1FetchParamsToURLPath(fetchParams);
   return internal_loadBackupConfigFromValuesPackage(filePath);
 };
 

@@ -146,14 +146,14 @@ const ALL_HISTORICAL__BeverageV1EntryMilestones = [HISTORICAL__BeverageV1Entry__
  * "ORIGINAL" milestone
  * 2026.01: Initial fields.
  */
-type HISTORICAL__BeverageV1ConfigType__ORIGINAL = {
+type HISTORICAL__BeverageV1PayloadType__ORIGINAL = {
   lastUpdatedAt: string;
   beverages: Array<HISTORICAL__BeverageV1EntryType__ORIGINAL>;
 };
 
-const HISTORICAL__BeverageV1Config__ORIGINAL = {
+const HISTORICAL__BeverageV1Payload__ORIGINAL = {
   milestoneName: 'ORIGINAL',
-  type: null as unknown as HISTORICAL__BeverageV1ConfigType__ORIGINAL,
+  type: null as unknown as HISTORICAL__BeverageV1PayloadType__ORIGINAL,
   examples: [
     {
       lastUpdatedAt: '2026-01-01T00:00:00.000Z',
@@ -174,8 +174,8 @@ const HISTORICAL__BeverageV1Config__ORIGINAL = {
  * A list of all historical milestones for full BeverageV1 configs.
  * Usually there'll only be one, which we never need to change.
  */
-const ALL_HISTORICAL__BeverageV1ConfigMilestones = [
-  HISTORICAL__BeverageV1Config__ORIGINAL,
+const ALL_HISTORICAL__BeverageV1PayloadMilestones = [
+  HISTORICAL__BeverageV1Payload__ORIGINAL,
 ] as const;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -187,8 +187,8 @@ type ALL_HISTORICAL__BeverageV1FetchParamTypes =
   (typeof ALL_HISTORICAL__BeverageV1FetchParamMilestones)[number]['type'];
 type ALL_HISTORICAL__BeverageV1EntryTypes =
   (typeof ALL_HISTORICAL__BeverageV1EntryMilestones)[number]['type'];
-type ALL_HISTORICAL__BeverageV1ConfigTypes =
-  (typeof ALL_HISTORICAL__BeverageV1ConfigMilestones)[number]['type'];
+type ALL_HISTORICAL__BeverageV1PayloadTypes =
+  (typeof ALL_HISTORICAL__BeverageV1PayloadMilestones)[number]['type'];
 
 // We use a spread to preserve the "as const" types from the examples (iterating over the array loses them).
 // When adding a new milestone above, you MUST add the new index here.
@@ -199,8 +199,8 @@ const ALL_HISTORICAL__BeverageV1FetchParamExamples = [
 const ALL_HISTORICAL__BeverageV1EntryExamples = [
   ...ALL_HISTORICAL__BeverageV1EntryMilestones[0].examples,
 ] as const;
-const ALL_HISTORICAL__BeverageV1ConfigExamples = [
-  ...ALL_HISTORICAL__BeverageV1ConfigMilestones[0].examples,
+const ALL_HISTORICAL__BeverageV1PayloadExamples = [
+  ...ALL_HISTORICAL__BeverageV1PayloadMilestones[0].examples,
 ] as const;
 
 /*
@@ -210,11 +210,11 @@ const ALL_HISTORICAL__BeverageV1ConfigExamples = [
 export {
   type ALL_HISTORICAL__BeverageV1FetchParamTypes,
   type ALL_HISTORICAL__BeverageV1EntryTypes,
-  type ALL_HISTORICAL__BeverageV1ConfigTypes,
+  type ALL_HISTORICAL__BeverageV1PayloadTypes,
   ALL_HISTORICAL__BeverageV1FetchParamMilestones,
   ALL_HISTORICAL__BeverageV1EntryMilestones,
-  ALL_HISTORICAL__BeverageV1ConfigMilestones,
+  ALL_HISTORICAL__BeverageV1PayloadMilestones,
   ALL_HISTORICAL__BeverageV1FetchParamExamples,
   ALL_HISTORICAL__BeverageV1EntryExamples,
-  ALL_HISTORICAL__BeverageV1ConfigExamples,
+  ALL_HISTORICAL__BeverageV1PayloadExamples,
 };

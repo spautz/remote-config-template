@@ -24,8 +24,12 @@ const beverageV1FetchParamExamples: Array<BeverageV1FetchParams> = [undefined, {
  * This SHOULD be used by the SDK to generate the full URL when fetching.
  * This MAY be used by the Values package to generate the CONFIG_FILE keys for filenames.
  */
-const convertFetchParamsToURLPath = (_fetchParams?: BeverageV1FetchParams): string =>
-  'beverages.json';
+const convertBeverageV1FetchParamsToURLPath = (_fetchParams?: BeverageV1FetchParams): string =>
+  'v1/beverages.json';
 
 export type { BeverageV1FetchParams };
-export { beverageV1FetchParamSchema, beverageV1FetchParamExamples, convertFetchParamsToURLPath };
+export {
+  beverageV1FetchParamSchema,
+  beverageV1FetchParamExamples,
+  convertBeverageV1FetchParamsToURLPath,
+};

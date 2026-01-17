@@ -1,9 +1,9 @@
 import {
-  type BeverageV1Config,
+  type BeverageV1Payload,
   initializeV1BeverageCache,
   internal_getV1BeverageCacheEntry,
   internal_getV1BeverageCacheStateContainer,
-  internal_setV1BeverageConfig,
+  internal_setV1BeveragePayload,
 } from '@spautz/myconfig-sdk';
 import { ALL_CONFIG_FILE_PATHS } from '@spautz/myconfig-values';
 import SEED_VALUE from '@spautz/myconfig-values/configs/v1/beverages.json' with { type: 'json' };
@@ -28,7 +28,7 @@ function App(): JSX.Element {
         type="button"
         onClick={() => {
           // @FIXME: Hardcoded 2 === CACHE_VALUE_SOURCE__SEED
-          internal_setV1BeverageConfig({}, SEED_VALUE as BeverageV1Config, 2);
+          internal_setV1BeveragePayload({}, SEED_VALUE as BeverageV1Payload, 2);
         }}
       >
         Load Seed Value
