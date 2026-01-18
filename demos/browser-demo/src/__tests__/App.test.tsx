@@ -12,7 +12,7 @@ describe('App', () => {
   it('Renders without error', () => {
     render(<App />);
 
-    expect(screen.getByText('cacheStateContainer:')).toBeVisible();
-    expect(screen.getByText('beverageCacheEntry:')).toBeVisible();
+    expect(screen.getByText('beverageConfigState:')).toBeVisible();
+    expect(screen.getByText('beverageConfigPayload:')).toBeVisible();
   });
 });

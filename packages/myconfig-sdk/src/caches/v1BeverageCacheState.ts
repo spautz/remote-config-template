@@ -7,14 +7,14 @@ import {
 } from '@spautz/myconfig-contracts';
 import { isPromise } from '../utils.js';
 import {
-  type CachedPayloadSource,
-  type CacheStateContainer,
-  type CacheStateEntry,
-  initializeCacheStateContainer,
+  type InternalCacheState_CachedPayloadSource,
+  type InternalCacheState_CacheStateContainer,
+  type InternalCacheState_CacheStateEntry,
   internalCacheState_addChangeListener,
   internalCacheState_addGlobalChangeListener,
   internalCacheState_getCacheEntry,
   internalCacheState_getPayload,
+  internalCacheState_initializeCacheStateContainer,
   internalCacheState_removeChangeListener,
   internalCacheState_removeGlobalChangeListener,
   internalCacheState_setPayloadPromise,
@@ -24,16 +24,31 @@ import {
 ///////////////////////////////////////////////////////////////////////////////
 // State Container Setup
 
-let v1BeverageCacheStateContainer: CacheStateContainer<BeverageV1FetchParams, BeverageV1Payload>;
+const DEBUG_LABEL = 'v1Beverage';
+let v1BeverageCacheStateContainer: InternalCacheState_CacheStateContainer<
+  BeverageV1FetchParams,
+  BeverageV1Payload
+>;
 
 /**
  * Initializes the Beverage cache with a base URL. This is required before you do anything else.
  */
 const internal_initializeV1BeverageCache = (baseUrl: string | URL): void => {
-  v1BeverageCacheStateContainer = initializeCacheStateContainer<
+  if (v1BeverageCacheStateContainer && process.env.NODE_ENV !== 'production') {
+    // We might have a duplicate: are the baseURLs equal?
+    const currentBaseUrl = new URL(v1BeverageCacheStateContainer.baseUrl).toString();
+    const newBaseUrl = new URL(baseUrl).toString();
+    if (currentBaseUrl === newBaseUrl) {
+      console.error(
+        `Duplicate BeverageCache initialization: you already had a cache for base URL "${newBaseUrl}"`,
+      );
+    }
+  }
+
+  v1BeverageCacheStateContainer = internalCacheState_initializeCacheStateContainer<
     BeverageV1FetchParams,
     BeverageV1Payload
-  >('v1Beverage', {
+  >(DEBUG_LABEL, {
     baseUrl,
     convertFetchParamsToUrl: (fetchParams) =>
       new URL(convertBeverageV1FetchParamsToURLPath(fetchParams), baseUrl),
@@ -45,7 +60,7 @@ const internal_initializeV1BeverageCache = (baseUrl: string | URL): void => {
 /**
  * Returns the full internal cache state container. Do not use this unless you know what you're doing.
  */
-const internal_getV1BeverageCacheStateContainer = (): CacheStateContainer<
+const internal_getV1BeverageCacheStateContainer = (): InternalCacheState_CacheStateContainer<
   BeverageV1FetchParams,
   BeverageV1Payload
 > => {
@@ -61,7 +76,7 @@ const internal_getV1BeverageCacheStateContainer = (): CacheStateContainer<
  */
 const bindFunctionToCacheState = <ArgsType extends unknown[], ReturnType>(
   fn: (
-    container: CacheStateContainer<BeverageV1FetchParams, BeverageV1Payload>,
+    container: InternalCacheState_CacheStateContainer<BeverageV1FetchParams, BeverageV1Payload>,
     ...args: ArgsType
   ) => ReturnType,
 ): ((...args: ArgsType) => ReturnType) => {
@@ -97,8 +112,8 @@ const internal_setV1BeveragePayloadValue = bindFunctionToCacheState(
 const internal_setV1BeveragePayload = (
   fetchParams: BeverageV1FetchParams,
   newValue: BeverageV1Payload | Promise<BeverageV1Payload>,
-  source: CachedPayloadSource,
-): CacheStateEntry<BeverageV1FetchParams, BeverageV1Payload> => {
+  source: InternalCacheState_CachedPayloadSource,
+): InternalCacheState_CacheStateEntry<BeverageV1FetchParams, BeverageV1Payload> => {
   if (isPromise(newValue)) {
     return internal_setV1BeveragePayloadPromise(fetchParams, newValue, source);
   }

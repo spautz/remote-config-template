@@ -41,7 +41,7 @@ const CACHED_PAYLOAD_SOURCE__OVERRIDE = 4;
  */
 const numPayloadSources = CACHED_PAYLOAD_SOURCE__OVERRIDE + 1;
 
-type CachedPayloadSource =
+type InternalCacheState_CachedPayloadSource =
   | typeof CACHED_PAYLOAD_SOURCE__NONE
   | typeof CACHED_PAYLOAD_SOURCE__BACKUP
   | typeof CACHED_PAYLOAD_SOURCE__SEED
@@ -53,7 +53,7 @@ const CACHED_PAYLOAD_FRESHNESS__NONE = 0;
 const CACHED_PAYLOAD_FRESHNESS__STALE = 1;
 const CACHED_PAYLOAD_FRESHNESS__FRESH = 2;
 
-type CachedPayloadFreshness =
+type InternalCacheState_CachedPayloadFreshness =
   | typeof CACHED_PAYLOAD_FRESHNESS__NONE
   | typeof CACHED_PAYLOAD_FRESHNESS__STALE
   | typeof CACHED_PAYLOAD_FRESHNESS__FRESH;
@@ -61,38 +61,38 @@ type CachedPayloadFreshness =
 /**
  * Tracks status and freshness of a single payload, potentially spanning multiple sources
  */
-type CacheStateEntry<FetchParamsType, ValueType> = {
-  promises: Array<Promise<ValueType> | undefined>;
-  values: Array<ValueType | undefined>;
+type InternalCacheState_CacheStateEntry<FetchParamsType, PayloadType> = {
+  promises: Array<Promise<PayloadType> | undefined>;
+  values: Array<PayloadType | undefined>;
   updateTimes: Array<ReturnType<typeof Date.now> | 0>;
   // @TODO: Track errors: result, retryCount, timing
   // @TODO: Events and external observers: subscribe, unsubscribe
   fetchParams: FetchParamsType;
   remoteUrl: URL;
-  bestSource: CachedPayloadSource;
-  onChange: Array<(newValue: ValueType, oldValue: ValueType | undefined) => void>;
+  bestSource: InternalCacheState_CachedPayloadSource;
+  onChange: Array<(newValue: PayloadType, oldValue: PayloadType | undefined) => void>;
 };
 
 /**
  * A collection of status & freshness information for all config files.
  */
-interface CacheStateContainer<FetchParamsType, ValueType> {
-  _state: Record<string, CacheStateEntry<FetchParamsType, ValueType>>;
+interface InternalCacheState_CacheStateContainer<FetchParamsType, PayloadType> {
+  _state: Record<string, InternalCacheState_CacheStateEntry<FetchParamsType, PayloadType>>;
   debugLabel: string;
   baseUrl: URL | string;
   convertFetchParamsToUrl: (fetchParams: FetchParamsType, baseUrl: string | URL) => URL;
   validatePayload: ((rawData: unknown) => boolean) | undefined;
-  parsePayload: ((rawData: unknown) => ValueType) | undefined;
+  parsePayload: ((rawData: unknown) => PayloadType) | undefined;
   onGlobalChange: Array<
     (
-      cacheEntry: CacheStateEntry<FetchParamsType, ValueType>,
-      newValue: ValueType,
-      oldValue: ValueType | undefined,
+      cacheEntry: InternalCacheState_CacheStateEntry<FetchParamsType, PayloadType>,
+      newValue: PayloadType,
+      oldValue: PayloadType | undefined,
     ) => void
   >;
 }
 
-const initializeCacheStateContainer = <FetchParamsType, ValueType>(
+const internalCacheState_initializeCacheStateContainer = <FetchParamsType, PayloadType>(
   debugLabel: string,
   {
     baseUrl,
@@ -100,15 +100,21 @@ const initializeCacheStateContainer = <FetchParamsType, ValueType>(
     validatePayload,
     parsePayload,
   }: {
-    baseUrl: CacheStateContainer<FetchParamsType, ValueType>['baseUrl'];
-    convertFetchParamsToUrl: CacheStateContainer<
+    baseUrl: InternalCacheState_CacheStateContainer<FetchParamsType, PayloadType>['baseUrl'];
+    convertFetchParamsToUrl: InternalCacheState_CacheStateContainer<
       FetchParamsType,
-      ValueType
+      PayloadType
     >['convertFetchParamsToUrl'];
-    validatePayload?: CacheStateContainer<FetchParamsType, ValueType>['validatePayload'];
-    parsePayload?: CacheStateContainer<FetchParamsType, ValueType>['parsePayload'];
+    validatePayload?: InternalCacheState_CacheStateContainer<
+      FetchParamsType,
+      PayloadType
+    >['validatePayload'];
+    parsePayload?: InternalCacheState_CacheStateContainer<
+      FetchParamsType,
+      PayloadType
+    >['parsePayload'];
   },
-): CacheStateContainer<FetchParamsType, ValueType> => {
+): InternalCacheState_CacheStateContainer<FetchParamsType, PayloadType> => {
   return {
     _state: Object.create(null),
     onGlobalChange: [],
@@ -120,18 +126,24 @@ const initializeCacheStateContainer = <FetchParamsType, ValueType>(
   };
 };
 
-const internalCacheState_getURLForParams = <FetchParamsType, ValueType>(
-  cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
+const internalCacheState_getURLForParams = <FetchParamsType, PayloadType>(
+  internalCacheState_cacheStateContainer: InternalCacheState_CacheStateContainer<
+    FetchParamsType,
+    PayloadType
+  >,
   fetchParams: FetchParamsType,
 ): URL => {
-  return cacheStateContainer.convertFetchParamsToUrl(fetchParams, cacheStateContainer.baseUrl);
+  return internalCacheState_cacheStateContainer.convertFetchParamsToUrl(
+    fetchParams,
+    internalCacheState_cacheStateContainer.baseUrl,
+  );
 };
 
-const internalCacheState_initializeCacheEntryForParams = <FetchParamsType, ValueType>(
-  _cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
+const internalCacheState_initializeCacheEntryForParams = <FetchParamsType, PayloadType>(
+  _cacheStateContainer: InternalCacheState_CacheStateContainer<FetchParamsType, PayloadType>,
   fetchParams: FetchParamsType,
   remoteUrl: URL,
-): CacheStateEntry<FetchParamsType, ValueType> => ({
+): InternalCacheState_CacheStateEntry<FetchParamsType, PayloadType> => ({
   promises: Array(numPayloadSources),
   values: Array(numPayloadSources),
   updateTimes: Array(numPayloadSources).fill(0),
@@ -142,47 +154,69 @@ const internalCacheState_initializeCacheEntryForParams = <FetchParamsType, Value
   onChange: [],
 });
 
-const internalCacheState_getCacheEntry = <FetchParamsType, ValueType>(
-  cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
+const internalCacheState_getCacheEntry = <FetchParamsType, PayloadType>(
+  internalCacheState_cacheStateContainer: InternalCacheState_CacheStateContainer<
+    FetchParamsType,
+    PayloadType
+  >,
   fetchParams: FetchParamsType,
-): CacheStateEntry<FetchParamsType, ValueType> => {
-  const remoteUrl = internalCacheState_getURLForParams(cacheStateContainer, fetchParams);
+): InternalCacheState_CacheStateEntry<FetchParamsType, PayloadType> => {
+  const remoteUrl = internalCacheState_getURLForParams(
+    internalCacheState_cacheStateContainer,
+    fetchParams,
+  );
   const cacheKey = remoteUrl.toString();
 
-  if (!cacheStateContainer._state[cacheKey]) {
-    cacheStateContainer._state[cacheKey] = internalCacheState_initializeCacheEntryForParams(
-      cacheStateContainer,
-      fetchParams,
-      remoteUrl,
-    );
+  if (!internalCacheState_cacheStateContainer._state[cacheKey]) {
+    internalCacheState_cacheStateContainer._state[cacheKey] =
+      internalCacheState_initializeCacheEntryForParams(
+        internalCacheState_cacheStateContainer,
+        fetchParams,
+        remoteUrl,
+      );
   }
-  return cacheStateContainer._state[cacheKey];
+  return internalCacheState_cacheStateContainer._state[cacheKey];
 };
 
-const internalCacheState_getPayload = <FetchParamsType, ValueType>(
-  cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
+const internalCacheState_getPayload = <FetchParamsType, PayloadType>(
+  internalCacheState_cacheStateContainer: InternalCacheState_CacheStateContainer<
+    FetchParamsType,
+    PayloadType
+  >,
   fetchParams: FetchParamsType,
-): ValueType | undefined => {
-  const cacheEntry = internalCacheState_getCacheEntry(cacheStateContainer, fetchParams);
+): PayloadType | undefined => {
+  const cacheEntry = internalCacheState_getCacheEntry(
+    internalCacheState_cacheStateContainer,
+    fetchParams,
+  );
   return cacheEntry.values[cacheEntry.bestSource];
 };
 
-const internalCacheState_setPayloadValue = <FetchParamsType, ValueType>(
-  cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
+const internalCacheState_setPayloadValue = <FetchParamsType, PayloadType>(
+  internalCacheState_cacheStateContainer: InternalCacheState_CacheStateContainer<
+    FetchParamsType,
+    PayloadType
+  >,
   fetchParams: FetchParamsType,
-  newValue: ValueType,
-  source: CachedPayloadSource,
-): CacheStateEntry<FetchParamsType, ValueType> => {
-  const cacheEntry = internalCacheState_getCacheEntry(cacheStateContainer, fetchParams);
-  const { debugLabel, validatePayload, parsePayload } = cacheStateContainer;
-  const { promises, values, updateTimes, bestSource } = cacheEntry;
+  newValue: PayloadType,
+  source: InternalCacheState_CachedPayloadSource,
+): InternalCacheState_CacheStateEntry<FetchParamsType, PayloadType> => {
+  const cacheEntry = internalCacheState_getCacheEntry(
+    internalCacheState_cacheStateContainer,
+    fetchParams,
+  );
+  const { debugLabel, validatePayload, parsePayload, onGlobalChange } =
+    internalCacheState_cacheStateContainer;
+  const { promises, values, updateTimes, bestSource, onChange } = cacheEntry;
 
   // @TODO: Try/catch for specific cases, callback instead of inline error
 
   if (validatePayload) {
     const isValid = validatePayload(newValue);
     if (!isValid) {
+      // @TODO: log/traceback to help debugging
       console.warn(`Invalid config payload for ${debugLabel}`, newValue);
+      return cacheEntry;
     }
   }
 
@@ -190,23 +224,39 @@ const internalCacheState_setPayloadValue = <FetchParamsType, ValueType>(
 
   // Clear promises, set value
   promises[source] = undefined;
+  const oldValue = cacheEntry.values[cacheEntry.bestSource];
   values[source] = parsedValue;
   updateTimes[source] = Date.now();
 
   if (source > bestSource) {
     cacheEntry.bestSource = source;
   }
+  // @TODO: equality check to avoid firing unnecessary change events
+  if (source >= bestSource) {
+    if (onChange.length) {
+      onChange.forEach((callback) => callback(parsedValue, oldValue));
+    }
+    if (onGlobalChange.length) {
+      onGlobalChange.forEach((callback) => callback(cacheEntry, parsedValue, oldValue));
+    }
+  }
 
   return cacheEntry;
 };
 
-const internalCacheState_setPayloadPromise = <FetchParamsType, ValueType>(
-  cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
+const internalCacheState_setPayloadPromise = <FetchParamsType, PayloadType>(
+  internalCacheState_cacheStateContainer: InternalCacheState_CacheStateContainer<
+    FetchParamsType,
+    PayloadType
+  >,
   fetchParams: FetchParamsType,
-  newPromise: Promise<ValueType>,
-  source: CachedPayloadSource,
-): CacheStateEntry<FetchParamsType, ValueType> => {
-  const cacheEntry = internalCacheState_getCacheEntry(cacheStateContainer, fetchParams);
+  newPromise: Promise<PayloadType>,
+  source: InternalCacheState_CachedPayloadSource,
+): InternalCacheState_CacheStateEntry<FetchParamsType, PayloadType> => {
+  const cacheEntry = internalCacheState_getCacheEntry(
+    internalCacheState_cacheStateContainer,
+    fetchParams,
+  );
   const { promises } = cacheEntry;
 
   // Track promise and queue up a value-assignment once it finishes
@@ -214,7 +264,12 @@ const internalCacheState_setPayloadPromise = <FetchParamsType, ValueType>(
 
   newPromise.then((newValue) => {
     if (newPromise === promises[source]) {
-      internalCacheState_setPayloadValue(cacheStateContainer, fetchParams, newValue, source);
+      internalCacheState_setPayloadValue(
+        internalCacheState_cacheStateContainer,
+        fetchParams,
+        newValue,
+        source,
+      );
     }
     // Else: this promise was replaced while we were waiting, so don't do anything
   });
@@ -222,26 +277,44 @@ const internalCacheState_setPayloadPromise = <FetchParamsType, ValueType>(
   return cacheEntry;
 };
 
-const internalCacheState_addChangeListener = <FetchParamsType, ValueType>(
-  cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
+const internalCacheState_addChangeListener = <FetchParamsType, PayloadType>(
+  internalCacheState_cacheStateContainer: InternalCacheState_CacheStateContainer<
+    FetchParamsType,
+    PayloadType
+  >,
   fetchParams: FetchParamsType,
-  callbackFn: (newValue: ValueType, oldValue: ValueType | undefined) => void,
-): CacheStateEntry<FetchParamsType, ValueType> => {
-  const cacheEntry = internalCacheState_getCacheEntry(cacheStateContainer, fetchParams);
+  callbackFn: (newValue: PayloadType, oldValue: PayloadType | undefined) => void,
+): (() => void) => {
+  const cacheEntry = internalCacheState_getCacheEntry(
+    internalCacheState_cacheStateContainer,
+    fetchParams,
+  );
   const { onChange } = cacheEntry;
   if (!onChange.includes(callbackFn)) {
     onChange.push(callbackFn);
   }
 
-  return cacheEntry;
+  const unsubscribe = () =>
+    internalCacheState_removeChangeListener(
+      internalCacheState_cacheStateContainer,
+      fetchParams,
+      callbackFn,
+    );
+  return unsubscribe;
 };
 
-const internalCacheState_removeChangeListener = <FetchParamsType, ValueType>(
-  cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
+const internalCacheState_removeChangeListener = <FetchParamsType, PayloadType>(
+  internalCacheState_cacheStateContainer: InternalCacheState_CacheStateContainer<
+    FetchParamsType,
+    PayloadType
+  >,
   fetchParams: FetchParamsType,
-  callbackFn: (newValue: ValueType, oldValue: ValueType | undefined) => void,
-): CacheStateEntry<FetchParamsType, ValueType> => {
-  const cacheEntry = internalCacheState_getCacheEntry(cacheStateContainer, fetchParams);
+  callbackFn: (newValue: PayloadType, oldValue: PayloadType | undefined) => void,
+): InternalCacheState_CacheStateEntry<FetchParamsType, PayloadType> => {
+  const cacheEntry = internalCacheState_getCacheEntry(
+    internalCacheState_cacheStateContainer,
+    fetchParams,
+  );
   const { onChange } = cacheEntry;
 
   const index = onChange.indexOf(callbackFn);
@@ -252,41 +325,57 @@ const internalCacheState_removeChangeListener = <FetchParamsType, ValueType>(
   return cacheEntry;
 };
 
-const internalCacheState_addGlobalChangeListener = <FetchParamsType, ValueType>(
-  cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
+const internalCacheState_addGlobalChangeListener = <FetchParamsType, PayloadType>(
+  internalCacheState_cacheStateContainer: InternalCacheState_CacheStateContainer<
+    FetchParamsType,
+    PayloadType
+  >,
   callbackFn: (
-    cacheEntry: CacheStateEntry<FetchParamsType, ValueType>,
-    newValue: ValueType,
-    oldValue: ValueType | undefined,
+    cacheEntry: InternalCacheState_CacheStateEntry<FetchParamsType, PayloadType>,
+    newValue: PayloadType,
+    oldValue: PayloadType | undefined,
   ) => void,
-): CacheStateContainer<FetchParamsType, ValueType> => {
-  const { onGlobalChange } = cacheStateContainer;
+): (() => void) => {
+  const { onGlobalChange } = internalCacheState_cacheStateContainer;
   if (!onGlobalChange.includes(callbackFn)) {
     onGlobalChange.push(callbackFn);
   }
 
-  return cacheStateContainer;
+  const unsubscribe = () =>
+    internalCacheState_removeGlobalChangeListener(
+      internalCacheState_cacheStateContainer,
+      callbackFn,
+    );
+  return unsubscribe;
 };
 
-const internalCacheState_removeGlobalChangeListener = <FetchParamsType, ValueType>(
-  cacheStateContainer: CacheStateContainer<FetchParamsType, ValueType>,
+const internalCacheState_removeGlobalChangeListener = <FetchParamsType, PayloadType>(
+  internalCacheState_cacheStateContainer: InternalCacheState_CacheStateContainer<
+    FetchParamsType,
+    PayloadType
+  >,
   callbackFn: (
-    cacheEntry: CacheStateEntry<FetchParamsType, ValueType>,
-    newValue: ValueType,
-    oldValue: ValueType | undefined,
+    cacheEntry: InternalCacheState_CacheStateEntry<FetchParamsType, PayloadType>,
+    newValue: PayloadType,
+    oldValue: PayloadType | undefined,
   ) => void,
-): CacheStateContainer<FetchParamsType, ValueType> => {
-  const { onGlobalChange } = cacheStateContainer;
+): InternalCacheState_CacheStateContainer<FetchParamsType, PayloadType> => {
+  const { onGlobalChange } = internalCacheState_cacheStateContainer;
 
   const index = onGlobalChange.indexOf(callbackFn);
   if (index !== -1) {
     onGlobalChange.splice(onGlobalChange.indexOf(callbackFn), 1);
   }
 
-  return cacheStateContainer;
+  return internalCacheState_cacheStateContainer;
 };
 
-export type { CachedPayloadSource, CachedPayloadFreshness, CacheStateEntry, CacheStateContainer };
+export type {
+  InternalCacheState_CachedPayloadSource,
+  InternalCacheState_CachedPayloadFreshness,
+  InternalCacheState_CacheStateEntry,
+  InternalCacheState_CacheStateContainer,
+};
 export {
   CACHED_PAYLOAD_SOURCE__NONE,
   CACHED_PAYLOAD_SOURCE__BACKUP,
@@ -296,7 +385,7 @@ export {
   CACHED_PAYLOAD_FRESHNESS__NONE,
   CACHED_PAYLOAD_FRESHNESS__STALE,
   CACHED_PAYLOAD_FRESHNESS__FRESH,
-  initializeCacheStateContainer,
+  internalCacheState_initializeCacheStateContainer,
   internalCacheState_getCacheEntry,
   internalCacheState_getPayload,
   internalCacheState_setPayloadValue,

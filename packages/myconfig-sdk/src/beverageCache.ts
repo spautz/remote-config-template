@@ -6,11 +6,12 @@
  * We only support Beverages V1 right now, so no need to do anything special when initializing or interacting
  * with it. If we were to add a Beverages V2, we could split/combine versions for both of them here.
  */
+
+export type { BeverageV1Payload as BeveragePayload } from '@spautz/myconfig-contracts';
 export {
   internal_addGlobalV1BeverageChangeListener as addGlobalBeverageChangeListener,
   internal_addV1BeverageChangeListener as addBeverageChangeListener,
   internal_getV1BeveragePayload as getCurrentBeveragePayload,
-  // Functions other than 'get' and 'set' can be passed through as-is
   internal_initializeV1BeverageCache as initializeBeverageCache,
   internal_removeGlobalV1BeverageChangeListener as removeGlobalBeverageChangeListener,
   internal_removeV1BeverageChangeListener as removeBeverageChangeListener,

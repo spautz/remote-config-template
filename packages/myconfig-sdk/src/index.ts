@@ -8,4 +8,5 @@ export {
 export * from './beverageCache.js';
 
 // Internal pieces, for people (and demos) who know what they're doing
+export * from './caches/cacheState.ts';
 export * from './caches/v1BeverageCacheState.js';

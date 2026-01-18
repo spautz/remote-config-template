@@ -1,12 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
-import { initializeCacheStateContainer, internalCacheState_getCacheEntry } from '../cacheState.ts';
+import {
+  internalCacheState_getCacheEntry,
+  internalCacheState_initializeCacheStateContainer,
+} from '../cacheState.ts';
 
 describe('Cache State Container', () => {
   describe('initializeCacheStateContainer', () => {
     it('should initialize a blank state container', () => {
       const alwaysReturnExampleUrl = () => new URL('https://example.com/unit-test-example.json');
-      const cacheStateContainer = initializeCacheStateContainer('unit tests', {
+      const cacheStateContainer = internalCacheState_initializeCacheStateContainer('unit tests', {
         baseUrl: 'https://example.com',
         convertFetchParamsToUrl: alwaysReturnExampleUrl,
       });
@@ -24,7 +27,7 @@ describe('Cache State Container', () => {
   describe('internalCacheState_getCacheEntry', () => {
     it('should return a blank cache entry on first call', () => {
       const alwaysReturnExampleUrl = () => new URL('https://example.com/unit-test-example.json');
-      const cacheStateContainer = initializeCacheStateContainer('unit tests', {
+      const cacheStateContainer = internalCacheState_initializeCacheStateContainer('unit tests', {
         baseUrl: 'https://example.com',
         convertFetchParamsToUrl: alwaysReturnExampleUrl,
       });
