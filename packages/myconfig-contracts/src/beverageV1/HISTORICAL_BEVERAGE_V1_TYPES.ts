@@ -25,7 +25,7 @@
  */
 type HISTORICAL__BeverageV1FetchParamsType__ORIGINAL = undefined | Record<never, never>;
 
-// This tracks types + example values as a single unit, to make tests easier.
+// This tracks types + example payloads as a single unit, to make tests easier.
 const HISTORICAL__BeverageV1FetchParams__ORIGINAL = {
   milestoneName: 'ORIGINAL',
   type: null as unknown as HISTORICAL__BeverageV1FetchParamsType__ORIGINAL,

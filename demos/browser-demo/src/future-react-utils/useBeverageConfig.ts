@@ -4,14 +4,14 @@ import {
   initializeBeverageCache,
   internal_getV1BeverageCacheStateContainer,
   internalCacheState_addChangeListener,
-  internalCacheState_getPayload,
+  internalCacheState_getCurrentPayload,
 } from '@spautz/myconfig-sdk';
 import { useEffect, useState } from 'react';
 
 // @TODO: Move this into the SDK
 type PayloadState = {
   // Presence
-  hasValue: boolean;
+  hasPayload: boolean;
   hasError: boolean;
   isLoading: boolean;
   // Freshness & related status
@@ -26,7 +26,7 @@ const internal_useRemoteConfig = <FetchParamsType, PayloadType>(
   fetchParams: FetchParamsType,
 ): [PayloadState, PayloadType | undefined] => {
   const [payload, setPayload] = useState(
-    internalCacheState_getPayload(internalCacheStateContainer, fetchParams),
+    internalCacheState_getCurrentPayload(internalCacheStateContainer, fetchParams),
   );
 
   useEffect(() => {
@@ -34,7 +34,7 @@ const internal_useRemoteConfig = <FetchParamsType, PayloadType>(
       internalCacheStateContainer,
       fetchParams,
       () => {
-        setPayload(internalCacheState_getPayload(internalCacheStateContainer, fetchParams));
+        setPayload(internalCacheState_getCurrentPayload(internalCacheStateContainer, fetchParams));
       },
     );
     return unsubscribe;
@@ -43,7 +43,7 @@ const internal_useRemoteConfig = <FetchParamsType, PayloadType>(
   return [
     {
       // @TODO: Implement this properly -- just dummy data for now
-      hasValue: !!payload,
+      hasPayload: !!payload,
       hasError: false,
       isLoading: false,
       isBackupValue: false,

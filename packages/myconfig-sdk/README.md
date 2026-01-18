@@ -16,10 +16,20 @@ This provides utilities to fetch, validate, cache, monitor, and backfill config 
 _This is under active development, last updated January 2026. Docs to come._
 
 * [ ] Raw fetch functions
-* [ ] Cache status checks/reporting
+* [ ] Raw payload accessors
+* [ ] Pending payload accessors
+* [ ] Raw meta accessors
 * [ ] Initial prefetch + readiness
 * [ ] On-demand fetches
 * [ ] Background refetches
 * [ ] App-supplied fallback + override
+
+Events, local and global:
+
+* [ ] Payload change
+* [ ] Meta change
+* [ ] Invalid/rejected fetchParams
+* [ ] Invalid/rejected payload
+* [ ] Usage warning (initialization) - global only
 
 For more information or related packages, see the [Remote-Config-Template workspace](https://github.com/spautz/remote-config-template).

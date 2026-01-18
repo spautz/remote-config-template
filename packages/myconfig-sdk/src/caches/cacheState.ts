@@ -58,13 +58,29 @@ type InternalCacheState_CachedPayloadFreshness =
   | typeof CACHED_PAYLOAD_FRESHNESS__STALE
   | typeof CACHED_PAYLOAD_FRESHNESS__FRESH;
 
+type InternalCacheState_PayloadMeta = {
+  // Presence
+  hasPayload: boolean;
+  hasError: boolean;
+  // Freshness
+  isLoading: boolean;
+  isFresh: boolean;
+  lastUpdated: number;
+  // Source
+  isBackupValue: boolean;
+  isSeedValue: boolean;
+  isRemoteValue: boolean;
+  isOverrideValue: boolean;
+};
+
 /**
  * Tracks status and freshness of a single payload, potentially spanning multiple sources
  */
 type InternalCacheState_CacheStateEntry<FetchParamsType, PayloadType> = {
   promises: Array<Promise<PayloadType> | undefined>;
-  values: Array<PayloadType | undefined>;
+  payloads: Array<PayloadType | undefined>;
   updateTimes: Array<ReturnType<typeof Date.now> | 0>;
+  meta: InternalCacheState_PayloadMeta;
   // @TODO: Track errors: result, retryCount, timing
   // @TODO: Events and external observers: subscribe, unsubscribe
   fetchParams: FetchParamsType;
@@ -145,8 +161,19 @@ const internalCacheState_initializeCacheEntryForParams = <FetchParamsType, Paylo
   remoteUrl: URL,
 ): InternalCacheState_CacheStateEntry<FetchParamsType, PayloadType> => ({
   promises: Array(numPayloadSources),
-  values: Array(numPayloadSources),
+  payloads: Array(numPayloadSources),
   updateTimes: Array(numPayloadSources).fill(0),
+  meta: {
+    hasPayload: false,
+    hasError: false,
+    isLoading: false,
+    isFresh: false,
+    lastUpdated: 0,
+    isBackupValue: false,
+    isSeedValue: false,
+    isRemoteValue: false,
+    isOverrideValue: false,
+  },
   // @TODO: Track errors: result, retryCount, timing
   fetchParams,
   remoteUrl,
@@ -178,7 +205,10 @@ const internalCacheState_getCacheEntry = <FetchParamsType, PayloadType>(
   return internalCacheState_cacheStateContainer._state[cacheKey];
 };
 
-const internalCacheState_getPayload = <FetchParamsType, PayloadType>(
+/**
+ * Synchronously returns the raw payload value currently in the cache state
+ */
+const internalCacheState_getCurrentPayload = <FetchParamsType, PayloadType>(
   internalCacheState_cacheStateContainer: InternalCacheState_CacheStateContainer<
     FetchParamsType,
     PayloadType
@@ -189,10 +219,27 @@ const internalCacheState_getPayload = <FetchParamsType, PayloadType>(
     internalCacheState_cacheStateContainer,
     fetchParams,
   );
-  return cacheEntry.values[cacheEntry.bestSource];
+  return cacheEntry.payloads[cacheEntry.bestSource];
 };
 
-const internalCacheState_setPayloadValue = <FetchParamsType, PayloadType>(
+/**
+ * Synchronously returns metadata about the payload currently in state: presence and freshness
+ */
+const internalCacheState_getPayloadMeta = <FetchParamsType, PayloadType>(
+  internalCacheState_cacheStateContainer: InternalCacheState_CacheStateContainer<
+    FetchParamsType,
+    PayloadType
+  >,
+  fetchParams: FetchParamsType,
+): InternalCacheState_PayloadMeta => {
+  const cacheEntry = internalCacheState_getCacheEntry(
+    internalCacheState_cacheStateContainer,
+    fetchParams,
+  );
+  return cacheEntry.meta;
+};
+
+const internalCacheState_setPayloadForSource = <FetchParamsType, PayloadType>(
   internalCacheState_cacheStateContainer: InternalCacheState_CacheStateContainer<
     FetchParamsType,
     PayloadType
@@ -207,7 +254,7 @@ const internalCacheState_setPayloadValue = <FetchParamsType, PayloadType>(
   );
   const { debugLabel, validatePayload, parsePayload, onGlobalChange } =
     internalCacheState_cacheStateContainer;
-  const { promises, values, updateTimes, bestSource, onChange } = cacheEntry;
+  const { promises, payloads, updateTimes, bestSource, onChange } = cacheEntry;
 
   // @TODO: Try/catch for specific cases, callback instead of inline error
 
@@ -224,9 +271,25 @@ const internalCacheState_setPayloadValue = <FetchParamsType, PayloadType>(
 
   // Clear promises, set value
   promises[source] = undefined;
-  const oldValue = cacheEntry.values[cacheEntry.bestSource];
-  values[source] = parsedValue;
-  updateTimes[source] = Date.now();
+  const oldValue = cacheEntry.payloads[cacheEntry.bestSource];
+  payloads[source] = parsedValue;
+  const updateTime = Date.now();
+  updateTimes[source] = updateTime;
+
+  // Recalculate meta
+  // @TODO: Optimizations, cleanup
+  cacheEntry.meta = {
+    hasPayload: true,
+    hasError: false,
+    isLoading: false,
+    // @TODO: Make this calculated
+    isFresh: true,
+    lastUpdated: updateTime,
+    isBackupValue: source === CACHED_PAYLOAD_SOURCE__BACKUP,
+    isSeedValue: source === CACHED_PAYLOAD_SOURCE__SEED,
+    isRemoteValue: source === CACHED_PAYLOAD_SOURCE__REMOTE,
+    isOverrideValue: source === CACHED_PAYLOAD_SOURCE__OVERRIDE,
+  };
 
   if (source > bestSource) {
     cacheEntry.bestSource = source;
@@ -234,10 +297,14 @@ const internalCacheState_setPayloadValue = <FetchParamsType, PayloadType>(
   // @TODO: equality check to avoid firing unnecessary change events
   if (source >= bestSource) {
     if (onChange.length) {
-      onChange.forEach((callback) => callback(parsedValue, oldValue));
+      for (const callback of onChange) {
+        callback(parsedValue, oldValue);
+      }
     }
     if (onGlobalChange.length) {
-      onGlobalChange.forEach((callback) => callback(cacheEntry, parsedValue, oldValue));
+      for (const globalCallback of onGlobalChange) {
+        globalCallback(cacheEntry, parsedValue, oldValue);
+      }
     }
   }
 
@@ -262,12 +329,12 @@ const internalCacheState_setPayloadPromise = <FetchParamsType, PayloadType>(
   // Track promise and queue up a value-assignment once it finishes
   promises[source] = newPromise;
 
-  newPromise.then((newValue) => {
+  newPromise.then((newPayload) => {
     if (newPromise === promises[source]) {
-      internalCacheState_setPayloadValue(
+      internalCacheState_setPayloadForSource(
         internalCacheState_cacheStateContainer,
         fetchParams,
-        newValue,
+        newPayload,
         source,
       );
     }
@@ -375,6 +442,7 @@ export type {
   InternalCacheState_CachedPayloadFreshness,
   InternalCacheState_CacheStateEntry,
   InternalCacheState_CacheStateContainer,
+  InternalCacheState_PayloadMeta,
 };
 export {
   CACHED_PAYLOAD_SOURCE__NONE,
@@ -387,8 +455,9 @@ export {
   CACHED_PAYLOAD_FRESHNESS__FRESH,
   internalCacheState_initializeCacheStateContainer,
   internalCacheState_getCacheEntry,
-  internalCacheState_getPayload,
-  internalCacheState_setPayloadValue,
+  internalCacheState_getCurrentPayload,
+  internalCacheState_getPayloadMeta,
+  internalCacheState_setPayloadForSource,
   internalCacheState_setPayloadPromise,
   internalCacheState_addChangeListener,
   internalCacheState_removeChangeListener,

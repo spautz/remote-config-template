@@ -30,14 +30,14 @@ expectAssignable<ReadonlyArray<ALL_HISTORICAL__BeverageV1PayloadTypes>>(beverage
 describe('BeverageV1 Payloads', () => {
   test.each(
     beverageV1PayloadExamples,
-  )('Example values all pass current schema (#%#)', (examplePayload) => {
+  )('Examples all pass current schema (#%#)', (examplePayload) => {
     const result = beverageV1PayloadSchema.safeParse(examplePayload);
     expect(result.error).toBeFalsy();
   });
 
   test.each(
     ALL_HISTORICAL__BeverageV1PayloadExamples,
-  )('Historical values all pass current schema (%#: $milestoneName)', (examplePayload) => {
+  )('Historical examples all pass current schema (%#: $milestoneName)', (examplePayload) => {
     const result = beverageV1PayloadSchema.safeParse(examplePayload);
     expect(result.error).toBeFalsy();
   });

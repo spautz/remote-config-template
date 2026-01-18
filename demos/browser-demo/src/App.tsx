@@ -15,7 +15,7 @@ function App(): JSX.Element {
           internal_setV1BeveragePayload({}, SEED_VALUE as BeverageV1Payload, 2);
         }}
       >
-        Load Seed Value
+        Load Seed Payload
       </button>
       <ul>
         <li>

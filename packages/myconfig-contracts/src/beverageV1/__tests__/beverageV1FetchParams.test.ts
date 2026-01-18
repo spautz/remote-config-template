@@ -34,14 +34,14 @@ expectAssignable<ReadonlyArray<ALL_HISTORICAL__BeverageV1FetchParamTypes>>(
 describe('BeverageV1 FetchParams', () => {
   test.each(
     beverageV1FetchParamExamples,
-  )('Example values all pass current schema (#%#)', (exampleFetchParams) => {
+  )('Examples all pass current schema (#%#)', (exampleFetchParams) => {
     const result = beverageV1FetchParamSchema.safeParse(exampleFetchParams);
     expect(result.error).toBeFalsy();
   });
 
   test.each(
     ALL_HISTORICAL__BeverageV1FetchParamExamples,
-  )('Historical values all pass current schema (%#: $milestoneName)', (exampleFetchParams) => {
+  )('Historical examples all pass current schema (%#: $milestoneName)', (exampleFetchParams) => {
     const result = beverageV1FetchParamSchema.safeParse(exampleFetchParams);
     expect(result.error).toBeFalsy();
   });

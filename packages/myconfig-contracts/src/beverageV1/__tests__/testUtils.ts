@@ -7,8 +7,8 @@ type DeepReadonly<T> = T extends (infer R)[]
     : Readonly<T>;
 
 /**
- * A helper to allow `as const` example values to be checked against type contracts.
- * (TSD's doesn't like readonly-ness)
+ * A helper to allow `as const` examples to be checked against type contracts.
+ * (TSD's checks don't like readonly-ness)
  */
 const expectAssignable: <T>(expression: DeepReadonly<T>) => void = tsdExpectAssignable;
 

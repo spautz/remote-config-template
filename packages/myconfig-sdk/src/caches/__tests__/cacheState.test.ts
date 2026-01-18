@@ -35,7 +35,7 @@ describe('Cache State Container', () => {
 
       expect(cacheEntry).toMatchObject({
         promises: Array(5),
-        values: Array(5),
+        payloads: Array(5),
         updateTimes: Array(5).fill(0),
         fetchParams: 'example param',
         remoteUrl: new URL('https://example.com/unit-test-example.json'),

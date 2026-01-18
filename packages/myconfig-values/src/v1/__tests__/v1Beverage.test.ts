@@ -10,9 +10,9 @@ describe('Current v1Beverage payload', () => {
   });
 
   test.each(Object.keys(CONFIG_FILES))('%s has a valid schema', async (filename) => {
-    const payloadValue = await CONFIG_FILES[filename as keyof typeof CONFIG_FILES];
+    const payload = await CONFIG_FILES[filename as keyof typeof CONFIG_FILES];
 
-    const result = beverageV1PayloadSchema.safeParse(payloadValue);
+    const result = beverageV1PayloadSchema.safeParse(payload);
     expect(result.error).toBeFalsy();
   });
 });

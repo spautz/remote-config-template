@@ -13,12 +13,12 @@ import {
   internalCacheState_addChangeListener,
   internalCacheState_addGlobalChangeListener,
   internalCacheState_getCacheEntry,
-  internalCacheState_getPayload,
+  internalCacheState_getCurrentPayload,
   internalCacheState_initializeCacheStateContainer,
   internalCacheState_removeChangeListener,
   internalCacheState_removeGlobalChangeListener,
+  internalCacheState_setPayloadForSource,
   internalCacheState_setPayloadPromise,
-  internalCacheState_setPayloadValue,
 } from './cacheState.ts';
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -95,15 +95,15 @@ const internal_getV1BeverageCacheEntry = bindFunctionToCacheState(
  * Returns the highest-priority-source payload we have
  */
 const internal_getV1BeveragePayload = bindFunctionToCacheState(
-  internalCacheState_getPayload<BeverageV1FetchParams, BeverageV1Payload>,
+  internalCacheState_getCurrentPayload<BeverageV1FetchParams, BeverageV1Payload>,
 );
 
 const internal_setV1BeveragePayloadPromise = bindFunctionToCacheState(
   internalCacheState_setPayloadPromise<BeverageV1FetchParams, BeverageV1Payload>,
 );
 
-const internal_setV1BeveragePayloadValue = bindFunctionToCacheState(
-  internalCacheState_setPayloadValue<BeverageV1FetchParams, BeverageV1Payload>,
+const internal_setV1BeveragePayloadForSource = bindFunctionToCacheState(
+  internalCacheState_setPayloadForSource<BeverageV1FetchParams, BeverageV1Payload>,
 );
 
 /**
@@ -117,7 +117,7 @@ const internal_setV1BeveragePayload = (
   if (isPromise(newValue)) {
     return internal_setV1BeveragePayloadPromise(fetchParams, newValue, source);
   }
-  return internal_setV1BeveragePayloadValue(fetchParams, newValue, source);
+  return internal_setV1BeveragePayloadForSource(fetchParams, newValue, source);
 };
 
 const internal_addV1BeverageChangeListener = bindFunctionToCacheState(
