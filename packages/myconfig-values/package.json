@@ -74,8 +74,8 @@
     "build:values": "node --experimental-strip-types ./scripts/build-config-files.ts",
     "build:values:watch": "node --experimental-strip-types --watch ./scripts/build-config-files.ts",
     "build:verifypack": "ls *.tgz | xargs -I {} attw {} --exclude-entrypoints internal-raw-src",
-    "serve:dev": "serve dist/",
-    "serve:prod": "serve dist/",
+    "serve:dev": "serve dist/configs/",
+    "serve:prod": "serve dist/configs/",
     "size-check": "size-limit --why"
   },
   "dependencies": {},

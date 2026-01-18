@@ -25,6 +25,7 @@ import {
 // State Container Setup
 
 const DEBUG_LABEL = 'v1Beverage';
+
 let v1BeverageCacheStateContainer: InternalCacheState_CacheStateContainer<
   BeverageV1FetchParams,
   BeverageV1Payload
@@ -38,6 +39,9 @@ const internal_initializeV1BeverageCache = (baseUrl: string | URL): void => {
     // We might have a duplicate: are the baseURLs equal?
     const currentBaseUrl = new URL(v1BeverageCacheStateContainer.baseUrl).toString();
     const newBaseUrl = new URL(baseUrl).toString();
+    if (!newBaseUrl.endsWith('/')) {
+      console.error(`BeverageCache initialization: baseUrl does not end with '/' (`);
+    }
     if (currentBaseUrl === newBaseUrl) {
       console.error(
         `Duplicate BeverageCache initialization: you already had a cache for base URL "${newBaseUrl}"`,

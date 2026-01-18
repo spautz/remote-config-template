@@ -1,38 +1,58 @@
 import {
-  type BeverageV1FetchParams,
-  type BeverageV1Payload,
-  convertBeverageV1FetchParamsToURLPath,
-} from '@spautz/myconfig-contracts';
+  CACHED_PAYLOAD_SOURCE__REMOTE,
+  type InternalCacheState_CacheStateContainer,
+  type InternalCacheState_CacheStateEntry,
+  internalCacheState_getCacheEntry,
+  internalCacheState_setPayloadPromise,
+} from '../caches/cacheState.ts';
 
-/**
- * Supplies a payload file from the Values package under node_modules.
- * This should always succeed in Node environments, and it can work as a fallback if an up-to-date
- * copy of the config file cannot be fetched from the remote source.
- */
-const internal_loadBackupPayloadFromValuesPackage = async (
-  filePath: string,
-): Promise<BeverageV1Payload> => {
-  // @TODO: Handle import errors
+// @TODO: Move this to common utils, add support for more types
+const RESPONSE_PARSERS = new Map<
+  Array<string | undefined>,
+  (response: Response) => Promise<unknown>
+>([
+  [[undefined, 'json'], (response) => response.json()],
+  [['html', 'log', 'md', 'txt'], (response) => response.text()],
+]);
 
-  const module = await import(`@spautz/myconfig-values/configs/${filePath}`, {
-    with: { type: 'json' },
-  });
+const internalCacheState_fetchRemotePayload = async <FetchParamsType, PayloadType>(
+  internalCacheState_cacheStateContainer: InternalCacheState_CacheStateContainer<
+    FetchParamsType,
+    PayloadType
+  >,
+  fetchParams: FetchParamsType,
+): Promise<InternalCacheState_CacheStateEntry<FetchParamsType, PayloadType>> => {
+  const cacheEntry = internalCacheState_getCacheEntry(
+    internalCacheState_cacheStateContainer,
+    fetchParams,
+  );
+  const { remoteUrl } = cacheEntry;
 
-  // @TODO: Validate against beverageV1PayloadSchema, with some further fallback
+  console.log('fetchRemotePayload: ', remoteUrl, cacheEntry);
 
-  return module.default as BeverageV1Payload;
+  // What are we actually fetching?
+  const fileExtension = remoteUrl.pathname.split('.').pop();
+  console.log('fileExtension: ', fileExtension);
+
+  let responseParserFn: ((response: Response) => Promise<PayloadType>) | undefined;
+  // Loop through RESPONSE_PARSERS to find a match for our file extension
+  for (const [extensions, parserFn] of RESPONSE_PARSERS) {
+    if (extensions.includes(fileExtension)) {
+      responseParserFn = parserFn as () => Promise<PayloadType>;
+      break;
+    }
+  }
+
+  if (!responseParserFn) {
+    throw new Error(`No response parser found for file extension: ${fileExtension}`);
+  }
+
+  return internalCacheState_setPayloadPromise(
+    internalCacheState_cacheStateContainer,
+    fetchParams,
+    fetch(remoteUrl).then(responseParserFn),
+    CACHED_PAYLOAD_SOURCE__REMOTE,
+  );
 };
 
-/**
- * Supplies a `v1Beverage` payload file from the Values package under node_modules.
- * This should always succeed in Node environments, and it can work as a fallback if an up-to-date
- * copy of the config file cannot be fetched from the remote source.
- */
-const loadV1BeverageBackupPayload = async (
-  fetchParams: BeverageV1FetchParams,
-): Promise<BeverageV1Payload> => {
-  const filePath = convertBeverageV1FetchParamsToURLPath(fetchParams);
-  return internal_loadBackupPayloadFromValuesPackage(filePath);
-};
-
-export { internal_loadBackupPayloadFromValuesPackage, loadV1BeverageBackupPayload };
+export { internalCacheState_fetchRemotePayload };

@@ -1,9 +1,12 @@
 import {
+  type BeverageFetchParams,
   type BeveragePayload,
   type InternalCacheState_CacheStateContainer,
+  type InternalCacheState_CacheStateEntry,
   initializeBeverageCache,
   internal_getV1BeverageCacheStateContainer,
   internalCacheState_addChangeListener,
+  internalCacheState_getCacheEntry,
   internalCacheState_getCurrentPayload,
 } from '@spautz/myconfig-sdk';
 import { useEffect, useState } from 'react';
@@ -24,7 +27,11 @@ type PayloadState = {
 const internal_useRemoteConfig = <FetchParamsType, PayloadType>(
   internalCacheStateContainer: InternalCacheState_CacheStateContainer<FetchParamsType, PayloadType>,
   fetchParams: FetchParamsType,
-): [PayloadState, PayloadType | undefined] => {
+): [
+  PayloadState,
+  PayloadType | undefined,
+  InternalCacheState_CacheStateEntry<FetchParamsType, PayloadType>,
+] => {
   const [payload, setPayload] = useState(
     internalCacheState_getCurrentPayload(internalCacheStateContainer, fetchParams),
   );
@@ -34,6 +41,10 @@ const internal_useRemoteConfig = <FetchParamsType, PayloadType>(
       internalCacheStateContainer,
       fetchParams,
       () => {
+        console.log(
+          'Payload changed!',
+          internalCacheState_getCacheEntry(internalCacheStateContainer, fetchParams),
+        );
         setPayload(internalCacheState_getCurrentPayload(internalCacheStateContainer, fetchParams));
       },
     );
@@ -52,15 +63,23 @@ const internal_useRemoteConfig = <FetchParamsType, PayloadType>(
       isOverrideValue: false,
     },
     payload,
+    internalCacheState_getCacheEntry(internalCacheStateContainer, fetchParams),
   ];
 };
 
-const isInitialized = false;
+let isInitialized = false;
 
-const useBeverageConfig = (baseUrl: string | URL): [PayloadState, BeveragePayload | undefined] => {
+const useBeverageConfig = (
+  baseUrl: string | URL,
+): [
+  PayloadState,
+  BeveragePayload | undefined,
+  InternalCacheState_CacheStateEntry<BeverageFetchParams, BeveragePayload>,
+] => {
   if (!isInitialized) {
     // @TODO: Properly respond to baseUrl changes
     initializeBeverageCache(baseUrl);
+    isInitialized = true;
   }
   return internal_useRemoteConfig(internal_getV1BeverageCacheStateContainer(), undefined);
 };

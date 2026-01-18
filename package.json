@@ -30,6 +30,7 @@
     "all:all": "pnpm run format && turbo run w:lint lint w:typecheck typecheck w:all-tests test build pipeline-all",
     "all:ci": "pnpm run format:verify && turbo run w:lint:verify w:typecheck w:all-tests:ci --ui=stream",
     "dependencies": "turbo run dependencies",
+    "dev": "turbo run dev",
     "lint": "turbo run w:lint lint",
     "lint:verify": "turbo run w:lint:verify lint:verify",
     "test": "turbo run test",

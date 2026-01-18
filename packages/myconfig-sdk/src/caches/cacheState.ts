@@ -254,10 +254,9 @@ const internalCacheState_setPayloadForSource = <FetchParamsType, PayloadType>(
   );
   const { debugLabel, validatePayload, parsePayload, onGlobalChange } =
     internalCacheState_cacheStateContainer;
-  const { promises, payloads, updateTimes, bestSource, onChange } = cacheEntry;
+  const { bestSource, onChange } = cacheEntry;
 
   // @TODO: Try/catch for specific cases, callback instead of inline error
-
   if (validatePayload) {
     const isValid = validatePayload(newValue);
     if (!isValid) {
@@ -267,35 +266,47 @@ const internalCacheState_setPayloadForSource = <FetchParamsType, PayloadType>(
     }
   }
 
+  // @TODO: Try/catch & callback
   const parsedValue = parsePayload ? parsePayload(newValue) : newValue;
 
-  // Clear promises, set value
-  promises[source] = undefined;
   const oldValue = cacheEntry.payloads[cacheEntry.bestSource];
-  payloads[source] = parsedValue;
   const updateTime = Date.now();
-  updateTimes[source] = updateTime;
+  const nextBestSource = source > bestSource ? source : bestSource;
 
-  // Recalculate meta
-  // @TODO: Optimizations, cleanup
-  cacheEntry.meta = {
-    hasPayload: true,
-    hasError: false,
-    isLoading: false,
-    // @TODO: Make this calculated
-    isFresh: true,
-    lastUpdated: updateTime,
-    isBackupValue: source === CACHED_PAYLOAD_SOURCE__BACKUP,
-    isSeedValue: source === CACHED_PAYLOAD_SOURCE__SEED,
-    isRemoteValue: source === CACHED_PAYLOAD_SOURCE__REMOTE,
-    isOverrideValue: source === CACHED_PAYLOAD_SOURCE__OVERRIDE,
+  // Clear old promise, set new value
+  const nextPromises = [...cacheEntry.promises];
+  nextPromises[source] = undefined;
+  const nextPayloads = [...cacheEntry.payloads];
+  nextPayloads[source] = parsedValue;
+  const nextUpdateTimes = [...cacheEntry.updateTimes];
+  nextUpdateTimes[source] = updateTime;
+
+  const nextEntry = {
+    ...cacheEntry,
+    promises: nextPromises,
+    payloads: nextPayloads,
+    updateTimes: nextUpdateTimes,
+    bestSource: nextBestSource,
+    meta: {
+      // @TODO: Optimizations, cleanup, and make this all honest/calculated
+      hasPayload: true,
+      hasError: false,
+      isLoading: false,
+      isFresh: true,
+      lastUpdated: updateTime,
+      isBackupValue: source === CACHED_PAYLOAD_SOURCE__BACKUP,
+      isSeedValue: source === CACHED_PAYLOAD_SOURCE__SEED,
+      isRemoteValue: source === CACHED_PAYLOAD_SOURCE__REMOTE,
+      isOverrideValue: source === CACHED_PAYLOAD_SOURCE__OVERRIDE,
+    },
   };
 
-  if (source > bestSource) {
-    cacheEntry.bestSource = source;
-  }
+  const cacheKey = cacheEntry.remoteUrl.toString();
+  internalCacheState_cacheStateContainer._state[cacheKey] = nextEntry;
+
   // @TODO: equality check to avoid firing unnecessary change events
   if (source >= bestSource) {
+    console.log('FIRE change event');
     if (onChange.length) {
       for (const callback of onChange) {
         callback(parsedValue, oldValue);
@@ -303,12 +314,12 @@ const internalCacheState_setPayloadForSource = <FetchParamsType, PayloadType>(
     }
     if (onGlobalChange.length) {
       for (const globalCallback of onGlobalChange) {
-        globalCallback(cacheEntry, parsedValue, oldValue);
+        globalCallback(nextEntry, parsedValue, oldValue);
       }
     }
-  }
+  } else console.log('NOT firing change event');
 
-  return cacheEntry;
+  return nextEntry;
 };
 
 const internalCacheState_setPayloadPromise = <FetchParamsType, PayloadType>(
@@ -324,13 +335,25 @@ const internalCacheState_setPayloadPromise = <FetchParamsType, PayloadType>(
     internalCacheState_cacheStateContainer,
     fetchParams,
   );
-  const { promises } = cacheEntry;
 
   // Track promise and queue up a value-assignment once it finishes
-  promises[source] = newPromise;
+  const nextPromises = [...cacheEntry.promises];
+  nextPromises[source] = newPromise;
+
+  const nextEntry = {
+    ...cacheEntry,
+    promises: nextPromises,
+  };
+
+  const cacheKey = cacheEntry.remoteUrl.toString();
+  internalCacheState_cacheStateContainer._state[cacheKey] = nextEntry;
 
   newPromise.then((newPayload) => {
-    if (newPromise === promises[source]) {
+    const latestEntry = internalCacheState_getCacheEntry(
+      internalCacheState_cacheStateContainer,
+      fetchParams,
+    );
+    if (newPromise === latestEntry.promises[source]) {
       internalCacheState_setPayloadForSource(
         internalCacheState_cacheStateContainer,
         fetchParams,
@@ -341,7 +364,7 @@ const internalCacheState_setPayloadPromise = <FetchParamsType, PayloadType>(
     // Else: this promise was replaced while we were waiting, so don't do anything
   });
 
-  return cacheEntry;
+  return nextEntry;
 };
 
 const internalCacheState_addChangeListener = <FetchParamsType, PayloadType>(
@@ -356,9 +379,14 @@ const internalCacheState_addChangeListener = <FetchParamsType, PayloadType>(
     internalCacheState_cacheStateContainer,
     fetchParams,
   );
-  const { onChange } = cacheEntry;
-  if (!onChange.includes(callbackFn)) {
-    onChange.push(callbackFn);
+  if (!cacheEntry.onChange.includes(callbackFn)) {
+    const nextEntry = {
+      ...cacheEntry,
+      onChange: [...cacheEntry.onChange, callbackFn],
+    };
+
+    const cacheKey = cacheEntry.remoteUrl.toString();
+    internalCacheState_cacheStateContainer._state[cacheKey] = nextEntry;
   }
 
   const unsubscribe = () =>
@@ -382,14 +410,15 @@ const internalCacheState_removeChangeListener = <FetchParamsType, PayloadType>(
     internalCacheState_cacheStateContainer,
     fetchParams,
   );
-  const { onChange } = cacheEntry;
 
-  const index = onChange.indexOf(callbackFn);
-  if (index !== -1) {
-    onChange.splice(onChange.indexOf(callbackFn), 1);
-  }
+  const nextEntry = {
+    ...cacheEntry,
+    onChange: cacheEntry.onChange.filter((existingCallback) => existingCallback !== callbackFn),
+  };
 
-  return cacheEntry;
+  const cacheKey = cacheEntry.remoteUrl.toString();
+  internalCacheState_cacheStateContainer._state[cacheKey] = nextEntry;
+  return nextEntry;
 };
 
 const internalCacheState_addGlobalChangeListener = <FetchParamsType, PayloadType>(
@@ -405,7 +434,7 @@ const internalCacheState_addGlobalChangeListener = <FetchParamsType, PayloadType
 ): (() => void) => {
   const { onGlobalChange } = internalCacheState_cacheStateContainer;
   if (!onGlobalChange.includes(callbackFn)) {
-    onGlobalChange.push(callbackFn);
+    internalCacheState_cacheStateContainer.onGlobalChange = [...onGlobalChange, callbackFn];
   }
 
   const unsubscribe = () =>
@@ -429,10 +458,9 @@ const internalCacheState_removeGlobalChangeListener = <FetchParamsType, PayloadT
 ): InternalCacheState_CacheStateContainer<FetchParamsType, PayloadType> => {
   const { onGlobalChange } = internalCacheState_cacheStateContainer;
 
-  const index = onGlobalChange.indexOf(callbackFn);
-  if (index !== -1) {
-    onGlobalChange.splice(onGlobalChange.indexOf(callbackFn), 1);
-  }
+  internalCacheState_cacheStateContainer.onGlobalChange = onGlobalChange.filter(
+    (existingCallback) => existingCallback !== callbackFn,
+  );
 
   return internalCacheState_cacheStateContainer;
 };
