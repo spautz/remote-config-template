@@ -2,7 +2,7 @@
 export {
   type BeverageV1Payload,
   beverageV1PayloadSchema,
-} from '@spautz/myconfig-contracts';
+} from '@spautz/myconfig-api-contracts';
 
 // Public APIs
 export * from './beverageCache.js';

@@ -74,7 +74,7 @@
     "size-check": "size-limit --why"
   },
   "dependencies": {
-    "@spautz/myconfig-contracts": "workspace:^",
+    "@spautz/myconfig-api-contracts": "workspace:^",
     "@spautz/myconfig-values": "workspace:^"
   },
   "devDependencies": {

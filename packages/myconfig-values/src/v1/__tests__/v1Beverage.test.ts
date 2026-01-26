@@ -1,4 +1,4 @@
-import { beverageV1PayloadSchema } from '@spautz/myconfig-contracts';
+import { beverageV1PayloadSchema } from '@spautz/myconfig-api-contracts';
 import { describe, expect, test } from 'vitest';
 
 import { CONFIG_FILES } from '../v1Beverage.js';

@@ -84,7 +84,7 @@
     "@size-limit/esbuild": "catalog:",
     "@size-limit/esbuild-why": "catalog:",
     "@size-limit/file": "catalog:",
-    "@spautz/myconfig-contracts": "workspace:*",
+    "@spautz/myconfig-api-contracts": "workspace:*",
     "@types/node": "catalog:",
     "publint": "catalog:",
     "serve": "14.2.5",

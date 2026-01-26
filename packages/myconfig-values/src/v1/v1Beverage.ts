@@ -1,4 +1,4 @@
-import type { BeverageV1Payload } from '@spautz/myconfig-contracts';
+import type { BeverageV1Payload } from '@spautz/myconfig-api-contracts';
 
 /**
  * Mock config. We use a promise to simulate any remote work that might be needed.

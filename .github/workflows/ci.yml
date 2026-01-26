@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        package-name: [myconfig-contracts, myconfig-sdk, myconfig-values]
+        package-name: [myconfig-api-contracts, myconfig-sdk, myconfig-values]
 
     steps:
       - uses: actions/checkout@v6.0.1

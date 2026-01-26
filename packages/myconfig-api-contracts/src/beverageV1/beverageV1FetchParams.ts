@@ -7,11 +7,11 @@ import z from 'zod/v4';
 
 /**
  * Fetch-params track the arguments that a consumer must pass when loading a beverageV1 payload.
- * In this case, there's just one file with beverage info: no params required.
+ * In this project, there's just one file with beverage info: no params required.
  */
-const beverageV1FetchParamSchema = z.union([z.literal(undefined), z.strictObject({})]);
-
 type BeverageV1FetchParams = undefined | Record<never, never>;
+
+const beverageV1FetchParamSchema = z.union([z.literal(undefined), z.strictObject({})]);
 
 /**
  * A list of current fetch param examples, used for testing.

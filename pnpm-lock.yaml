@@ -177,7 +177,7 @@ importers:
         specifier: 'catalog:'
         version: 7.3.1(@types/node@24.5.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0)(yaml@2.8.1)
 
-  packages/myconfig-contracts:
+  packages/myconfig-api-contracts:
     dependencies:
       zod:
         specifier: ^4.3.5
@@ -213,9 +213,9 @@ importers:
 
   packages/myconfig-sdk:
     dependencies:
-      '@spautz/myconfig-contracts':
+      '@spautz/myconfig-api-contracts':
         specifier: workspace:^
-        version: link:../myconfig-contracts
+        version: link:../myconfig-api-contracts
       '@spautz/myconfig-values':
         specifier: workspace:^
         version: link:../myconfig-values
@@ -259,9 +259,9 @@ importers:
       '@size-limit/file':
         specifier: 'catalog:'
         version: 12.0.0(size-limit@12.0.0(jiti@2.6.1))
-      '@spautz/myconfig-contracts':
+      '@spautz/myconfig-api-contracts':
         specifier: workspace:*
-        version: link:../myconfig-contracts
+        version: link:../myconfig-api-contracts
       '@types/node':
         specifier: 'catalog:'
         version: 24.1.0

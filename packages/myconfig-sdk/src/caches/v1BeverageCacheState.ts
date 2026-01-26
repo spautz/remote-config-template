@@ -4,7 +4,7 @@ import {
   convertBeverageV1FetchParamsToURLPath,
   isValidBeverageV1Payload,
   parseBeverageV1Payload,
-} from '@spautz/myconfig-contracts';
+} from '@spautz/myconfig-api-contracts';
 import { isPromise } from '../utils.js';
 import {
   type InternalCacheState_CachedPayloadSource,

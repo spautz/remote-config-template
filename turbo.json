@@ -31,7 +31,7 @@
     // the packages. See https://github.com/vercel/turborepo/discussions/7481
     "//#w:dependencies": {
       "dependsOn": [
-        "@spautz/myconfig-contracts#build",
+        "@spautz/myconfig-api-contracts#build",
         "@spautz/myconfig-sdk#build",
         "@spautz/myconfig-values#build"
       ]
