@@ -1,8 +1,8 @@
 // Pass-through some values and utils from the contracts package which the consumer might have a legitimate use for
 export {
-  type BeverageV1Payload,
-  beverageV1PayloadSchema,
-} from '@spautz/myconfig-api-contracts';
+  type V1Beverage_Payload,
+  v1Beverage_payloadSchema,
+} from '@spautz/myconfig-api-contracts/v1';
 
 // Public APIs
 export * from './beverageCache.js';

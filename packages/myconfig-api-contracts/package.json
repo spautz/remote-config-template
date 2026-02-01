@@ -27,24 +27,24 @@
     "LICENSE",
     "*.md"
   ],
-  "source": "./src/index.ts",
+  "source": "./src/v1/index.ts",
   "type": "module",
   "exports": {
-    ".": {
+    "./v1": {
       "import": {
-        "types": "./dist/esm/index.d.ts",
-        "default": "./dist/esm/index.js"
+        "types": "./dist/esm/v1/index.d.ts",
+        "default": "./dist/esm/v1/index.js"
       },
       "require": {
-        "types": "./dist/cjs/index.d.cts",
-        "default": "./dist/cjs/index.cjs"
+        "types": "./dist/cjs/v1/index.d.cts",
+        "default": "./dist/cjs/v1/index.cjs"
       }
     },
+    ".": "./dist/no-import-from-root.js",
     "./package.json": "./package.json"
   },
-  "main": "./dist/cjs/index.cjs",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/esm/index.d.ts",
+  "main": "./dist/no-import-from-root.js",
+  "module": "./dist/no-import-from-root.js",
   "sideEffects": false,
   "scripts": {
     "____ HOOKS _________________________________________________________": "",
@@ -68,7 +68,7 @@
     "____ BUILD & VALIDATION TASKS ______________________________________": "",
     "build:clean": "rimraf --glob ./dist ./*.tgz",
     "build:lib": "tsdown --config ./tsdown.config.ts",
-    "build:lib:watch": "tsdown --config ./tsdown.config.ts --watch",
+    "build:lib:watch": "tsdown --config ./tsdown.config.ts --watch --no-clean",
     "build:verify": "publint --strict && size-limit",
     "build:verifypack": "ls *.tgz | xargs -I {} attw {} --exclude-entrypoints internal-raw-src",
     "size-check": "size-limit --why"
@@ -84,19 +84,18 @@
     "publint": "catalog:",
     "size-limit": "catalog:",
     "source-map-explorer": "catalog:",
-    "tsd": "0.33.0",
     "tsdown": "catalog:"
   },
   "peerDependencies": {},
   "size-limit": [
     {
-      "path": "./dist/esm/index.js",
+      "path": "./dist/esm/v1/index.js",
       "import": "{}",
       "limit": "20 B"
     },
     {
-      "path": "./dist/esm/index.js",
-      "import": "{ beverageV1PayloadSchema }",
+      "path": "./dist/esm/v1/index.js",
+      "import": "{ v1Beverage_payloadSchema }",
       "limit": "75 KB"
     }
   ]

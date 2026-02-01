@@ -7,7 +7,7 @@
  * with it. If we were to add a Beverages V2, we could split/combine versions for both of them here.
  */
 
-import type { BeverageV1FetchParams, BeverageV1Payload } from '@spautz/myconfig-api-contracts';
+import type { V1Beverage_Payload, V1FetchParams } from '@spautz/myconfig-api-contracts/v1';
 import { internal_getV1BeverageCacheStateContainer } from './caches/v1BeverageCacheState.ts';
 
 export {
@@ -21,7 +21,7 @@ export {
 
 import { internalCacheState_fetchRemotePayload } from './fetch/fetchRemotePayload.ts';
 
-const fetchBeverage = (fetchParams?: BeverageV1FetchParams) => {
+const fetchBeverage = (fetchParams?: V1FetchParams) => {
   return internalCacheState_fetchRemotePayload(
     internal_getV1BeverageCacheStateContainer(),
     fetchParams,
@@ -32,5 +32,5 @@ const fetchBeverage = (fetchParams?: BeverageV1FetchParams) => {
 // internal_getV1BeverageCacheEntry,
 // internal_setV1BeveragePayload,
 
-export type { BeverageV1FetchParams as BeverageFetchParams, BeverageV1Payload as BeveragePayload };
+export type { V1FetchParams as BeverageFetchParams, V1Beverage_Payload as BeveragePayload };
 export { fetchBeverage };
