@@ -1,5 +1,5 @@
 import {
-  type BeverageV1Payload,
+  type BeveragePayload,
   fetchBeverage,
   internal_setV1BeveragePayload,
 } from '@spautz/myconfig-sdk';
@@ -8,9 +8,8 @@ import type { JSX } from 'react/jsx-runtime';
 import { useBeverageConfig } from './future-react-utils/useBeverageConfig.ts';
 
 function App(): JSX.Element {
-  const [beverageConfigState, beverageConfigPayload, fullCacheEntry] = useBeverageConfig(
-    new URL('/proxy-to-config/', window.location.origin),
-  );
+  const baseUrl = new URL('/proxy-to-config/', window.location.origin);
+  const [beverageConfigState, beverageConfigPayload, fullCacheEntry] = useBeverageConfig(baseUrl);
 
   return (
     <div>
@@ -18,12 +17,12 @@ function App(): JSX.Element {
         type="button"
         onClick={() => {
           // @FIXME: Hardcoded 2 === CACHED_PAYLOAD_SOURCE__SEED
-          internal_setV1BeveragePayload({}, SEED_VALUE as BeverageV1Payload, 2);
+          internal_setV1BeveragePayload({}, SEED_VALUE as BeveragePayload, 2);
         }}
       >
         Load Seed Payload
       </button>
-      <button type="button" onClick={() => fetchBeverage()}>
+      <button type="button" onClick={() => fetchBeverage({ baseUrl })}>
         Load Payload from <code>/proxy-to-config</code>
       </button>
 

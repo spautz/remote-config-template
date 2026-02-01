@@ -18,7 +18,6 @@ describe('V1 FetchParams', () => {
   });
 
   test('Fetch param conversion defaults to the only config file', () => {
-    expect(convertV1FetchParamsToConfigFilePath(undefined)).toBe(V1_DEFAULT_CONFIG_FILE_PATH);
     expect(convertV1FetchParamsToConfigFilePath({})).toBe(V1_DEFAULT_CONFIG_FILE_PATH);
   });
 

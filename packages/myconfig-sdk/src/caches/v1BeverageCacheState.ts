@@ -1,4 +1,6 @@
 import {
+  buildUrl,
+  buildUrlString,
   convertV1FetchParamsToConfigFilePath,
   isValidV1BeveragePayload,
   parseV1BeveragePayload,
@@ -37,8 +39,8 @@ let v1BeverageCacheStateContainer: InternalCacheState_CacheStateContainer<
 const internal_initializeV1BeverageCache = (baseUrl: string | URL): void => {
   if (v1BeverageCacheStateContainer && process.env.NODE_ENV !== 'production') {
     // We might have a duplicate: are the baseURLs equal?
-    const currentBaseUrl = new URL(v1BeverageCacheStateContainer.baseUrl).toString();
-    const newBaseUrl = new URL(baseUrl).toString();
+    const currentBaseUrl = buildUrlString('', v1BeverageCacheStateContainer.baseUrl);
+    const newBaseUrl = buildUrlString('', baseUrl);
     if (!newBaseUrl.endsWith('/')) {
       console.error(`BeverageCache initialization: baseUrl does not end with '/' (`);
     }
@@ -55,7 +57,7 @@ const internal_initializeV1BeverageCache = (baseUrl: string | URL): void => {
   >(DEBUG_LABEL, {
     baseUrl,
     convertFetchParamsToUrl: (fetchParams) =>
-      new URL(convertV1FetchParamsToConfigFilePath(fetchParams), baseUrl),
+      buildUrl(convertV1FetchParamsToConfigFilePath(fetchParams), baseUrl),
     validatePayload: isValidV1BeveragePayload,
     parsePayload: parseV1BeveragePayload,
   });

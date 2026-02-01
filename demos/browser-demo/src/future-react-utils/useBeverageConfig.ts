@@ -78,10 +78,10 @@ const useBeverageConfig = (
 ] => {
   if (!isInitialized) {
     // @TODO: Properly respond to baseUrl changes
-    initializeBeverageCache(baseUrl);
+    initializeBeverageCache({ baseUrl });
     isInitialized = true;
   }
-  return internal_useRemoteConfig(internal_getV1BeverageCacheStateContainer(), undefined);
+  return internal_useRemoteConfig(internal_getV1BeverageCacheStateContainer(), {});
 };
 
 export { internal_useRemoteConfig, useBeverageConfig };

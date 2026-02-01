@@ -8,23 +8,32 @@
  */
 
 import type { V1Beverage_Payload, V1FetchParams } from '@spautz/myconfig-api-contracts/v1';
-import { internal_getV1BeverageCacheStateContainer } from './caches/v1BeverageCacheState.ts';
-
-export {
-  internal_addGlobalV1BeverageChangeListener as addGlobalBeverageChangeListener,
-  internal_addV1BeverageChangeListener as addBeverageChangeListener,
-  internal_getV1BeveragePayload as getCurrentBeveragePayload,
-  internal_initializeV1BeverageCache as initializeBeverageCache,
-  internal_removeGlobalV1BeverageChangeListener as removeGlobalBeverageChangeListener,
-  internal_removeV1BeverageChangeListener as removeBeverageChangeListener,
-} from './caches/v1BeverageCacheState.js';
+import {
+  internal_addGlobalV1BeverageChangeListener,
+  internal_addV1BeverageChangeListener,
+  internal_getV1BeverageCacheStateContainer,
+  internal_getV1BeveragePayload,
+  internal_initializeV1BeverageCache,
+  internal_removeGlobalV1BeverageChangeListener,
+  internal_removeV1BeverageChangeListener,
+} from './caches/v1BeverageCacheState.ts';
 
 import { internalCacheState_fetchRemotePayload } from './fetch/fetchRemotePayload.ts';
 
-const fetchBeverage = (fetchParams?: V1FetchParams) => {
+type InitializationParams = {
+  baseUrl: string | URL;
+};
+
+type InitializationAndFetchParams = InitializationParams & V1FetchParams;
+
+const initializeBeverageCache = ({ baseUrl }: InitializationParams): void => {
+  internal_initializeV1BeverageCache(baseUrl);
+};
+
+const fetchBeverage = ({ baseUrl: _baseUrl, ...fetchParams }: InitializationAndFetchParams) => {
   return internalCacheState_fetchRemotePayload(
     internal_getV1BeverageCacheStateContainer(),
-    fetchParams,
+    fetchParams as V1FetchParams,
   );
 };
 
@@ -33,4 +42,13 @@ const fetchBeverage = (fetchParams?: V1FetchParams) => {
 // internal_setV1BeveragePayload,
 
 export type { V1FetchParams as BeverageFetchParams, V1Beverage_Payload as BeveragePayload };
-export { fetchBeverage };
+export type { InitializationAndFetchParams, InitializationParams };
+export {
+  internal_addGlobalV1BeverageChangeListener as addGlobalBeverageChangeListener,
+  internal_addV1BeverageChangeListener as addBeverageChangeListener,
+  internal_getV1BeveragePayload as getCurrentBeveragePayload,
+  internal_removeGlobalV1BeverageChangeListener as removeGlobalBeverageChangeListener,
+  internal_removeV1BeverageChangeListener as removeBeverageChangeListener,
+  fetchBeverage,
+  initializeBeverageCache,
+};
